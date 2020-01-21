@@ -37,6 +37,8 @@ public class cardcontroller : MonoBehaviour
     int knowncardno =0;                  //number of delt cards
     int myscore =0;                      //scoring my hand for comparison ex.pair is 100000
     int opscore =0;                      //same but for opponent
+    int numberOpponentWinningHands = 0;  //number of hands the opponent won
+
 
     void Start()
     {
@@ -105,8 +107,7 @@ public class cardcontroller : MonoBehaviour
             if (cardno == 4) { clickedGameObject = board3; }
             if (cardno == 5) { clickedGameObject = board4; }
             if (cardno == 6) { clickedGameObject = board5; }
-         
-           
+                  
             bimage = clickedGameObject.GetComponentInChildren<Image>();
             for (int i = 1; i < 5; i++)
             {
@@ -125,7 +126,6 @@ public class cardcontroller : MonoBehaviour
                     resultNo[i]++;
                 }
             }
-
             if (btext.text == "10")
             {
                 card[cardno] += 10;
@@ -178,7 +178,6 @@ public class cardcontroller : MonoBehaviour
             if (cardno == 5) { clickedGameObject = board4; }
             if (cardno == 6) { clickedGameObject = board5; }
 
-
             bimage = clickedGameObject.GetComponentInChildren<Image>();
             for (int i = 1; i < 5; i++)
             {
@@ -197,7 +196,6 @@ public class cardcontroller : MonoBehaviour
                     resultNo[i]++;
                 }
             }
-
             if (btext.text == "10")
             {
                // card[cardno] += 10;
@@ -246,6 +244,8 @@ public class cardcontroller : MonoBehaviour
 
     }
     #endregion
+    //get card number or symbol method or set result number
+    #region
     public int getCardNumber(int a)
     {
         int cardnumber;
@@ -253,7 +253,28 @@ public class cardcontroller : MonoBehaviour
         else if (a % 13 == 1) { cardnumber = 14; }
         else { cardnumber = a % 13; }
         return cardnumber;
-    } //get card number
+    } 
+    public int getSymbl(int a)
+    {
+        if (a == 52) return 3;
+        else if (a == 39) return 2;
+        else if (a  == 26) return 1;
+        else if (a  == 13) return 0;
+        else return a / 13;             // 1-12 is 0, 14-25 is 1,,,40-51 is 3 
+    } 
+    public void setResultNumber(int a)
+    {
+        if (a % 13 == 0) { resultNo[13]++; }
+        else if (a % 13 == 1) { resultNo[14]++; resultNo[1]++; }
+        else { resultNo[a % 13]++; }
+    }
+    public void resetResultNumber(int a)
+    {
+        if (a % 13 == 0) { resultNo[13]--; }
+        else if (a % 13 == 1) { resultNo[14]--; resultNo[1]--; }
+        else { resultNo[a % 13]--; }
+    }
+    #endregion
     //buttons
     #region
     public void NextCard() {
@@ -764,6 +785,8 @@ public class cardcontroller : MonoBehaviour
         return k2;
     }           //1
     #endregion
+    // hand scoring version3 my and op
+    #region
     public int myscoreStraightflush()
     {
         int score = 0;
@@ -775,21 +798,21 @@ public class cardcontroller : MonoBehaviour
             cardnumber[i] = card[i];
         }
         Array.Sort(cardnumber);
+
         for(int i = 2; i >= 0; i--)
         {
             if (cardnumber[i + 1] == cardnumber[i] + 1 && cardnumber[i + 2] == cardnumber[i] + 2 && cardnumber[i + 3] == cardnumber[i] + 3 && cardnumber[i + 4] == cardnumber[i] + 4)
             {
-                resultSmblStraightFlush[0] = 0;
-                resultSmblStraightFlush[1] = 0;
-                resultSmblStraightFlush[2] = 0;
-                resultSmblStraightFlush[3] = 0;
-                if (cardnumber[i] / 13 == 4) resultSmblStraightFlush[3]++;
-                else { resultSmblStraightFlush[cardnumber[i] / 13]++; }
-                if (cardnumber[i+4] / 13 == 4) resultSmblStraightFlush[3]++;
-                else { resultSmblStraightFlush[cardnumber[i+4] / 13]++; } 
+                for(int k = 0; k < 4; k++)
+                {
+                    resultSmblStraightFlush[k] = 0;
+                }
+                resultSmblStraightFlush[getSymbl(cardnumber[i])]++;
+                resultSmblStraightFlush[getSymbl(cardnumber[i + 4])]++;
                 for (int j = 0; j < 4; j++)
                 {
-                    if (resultSmblStraightFlush[j] >= 2)
+                   // Debug.Log("i" + i + "j" + j+"symbl"+resultSmblStraightFlush[j]);
+                    if (resultSmblStraightFlush[j] == 2)
                     {
                         score += 800000000;
                         score += getCardNumber(cardnumber[i + 4]) * 1000000;
@@ -799,8 +822,39 @@ public class cardcontroller : MonoBehaviour
                 if (score > 100000000) break;
             }
         }
+        for (int i = 2; i >= 0; i--)
+        {
+            if (cardnumber[i + 2] == cardnumber[i + 1] + 1 && cardnumber[i + 3] == cardnumber[i + 1] + 2 && cardnumber[i + 4] == cardnumber[i + 1] + 3 && score < 100000000)
+            {
+                for(int m=0; m < 3; m++)
+                {
+                    if (cardnumber[i + 1] == cardnumber[m] + 9 )
+                    {
+                        for (int k = 0; k < 4; k++)
+                        {
+                            resultSmblStraightFlush[k] = 0;
+                        }
+                        resultSmblStraightFlush[getSymbl(cardnumber[i + 1])]++;
+                        resultSmblStraightFlush[getSymbl(cardnumber[m])]++;
+                        for (int j = 0; j < 4; j++)
+                        {
+                            // Debug.Log("i" + i + "j" + j+"symbl"+resultSmblStraightFlush[j]);
+                            if (resultSmblStraightFlush[j] == 2)
+                            {
+                                score += 800000000;
+                                score += getCardNumber(cardnumber[i + 4]) * 1000000;
+                                break;
+                            }
+                        }
+                   
+                    }
+                    if (score > 100000000) break;
+                }
+                if (score > 100000000) break;
+            }
+        }
         return score;
-    }  //8
+    } 
     public int myscoreFour()
     {
         int score = 0;
@@ -851,24 +905,35 @@ public class cardcontroller : MonoBehaviour
     public int myscoreFlush()
     {
         int score = 0;
-        int[] number = new int[7];
+        int[] cardnumber = new int[7];
+        int[] resultSmblFlush = new int[4];
 
-        for (int i = 0; i < 4; i++)
-        {
-
-            if (resultSmbl[i] >= 5)
-            {
-                score += 500000000;
-            }
-        }
         for (int i = 0; i < 7; i++)
         {
-            number[i] = getCardNumber(card[i]);
+            cardnumber[i] = card[i];
         }
-        Array.Sort(number);
-        score += number[6] * 1000000;
+        Array.Sort(cardnumber);
+        for (int i = 6; i >= 0; i--)
+        {
+            resultSmblFlush[0] = 0;
+            resultSmblFlush[1] = 0;
+            resultSmblFlush[2] = 0;
+            resultSmblFlush[3] = 0;
+            resultSmblFlush[getSymbl(cardnumber[i])]++;
+            for (int j = 0; j < 4; j++)
+            {
+                if (resultSmblFlush[j] >= 5)
+                {
+                    score += 500000000;
+                    score += getCardNumber(cardnumber[i + 4]) * 1000000;
+                    break;
+                }
+            }
+            if (score > 100000000) break;
+
+        }
         return score;
-    }          //5
+    }          
     public int myscoreStraight()
     {
         int score = 0;
@@ -941,7 +1006,7 @@ public class cardcontroller : MonoBehaviour
         Array.Sort(number);
         score += number[6] * 100;
         return score;
-    }        //2
+    }        
     public int myscorePair()
     {
         int score = 0;
@@ -967,11 +1032,273 @@ public class cardcontroller : MonoBehaviour
         score += number[6] * 10000 + number[5] * 100 + number[4];
         return score;
     }
-    public int opbestPair()
+    public int myscoreHighcard()
+    {
+        int score = max(getCardNumber(card[0]), getCardNumber(card[1])) * 100 + min(getCardNumber(card[0]), getCardNumber(card[1]));
+        return score;
+    }
+
+    public int opscoreStraightflush()
     {
         int score = 0;
-        int pair_num=0;
-        int[] number = new int[7];
+        int[] cardnumber = new int[9];
+        int[] resultSmblStraightFlush = new int[4];
+
+        for (int i = 2; i < 9; i++)
+        {
+            cardnumber[i] = card[i];
+        }
+        Array.Sort(cardnumber);
+
+        for (int i = 4; i >= 2; i--)
+        {
+            if (cardnumber[i + 1] == cardnumber[i] + 1 && cardnumber[i + 2] == cardnumber[i] + 2 && cardnumber[i + 3] == cardnumber[i] + 3 && cardnumber[i + 4] == cardnumber[i] + 4)
+            {
+                for (int k = 0; k < 4; k++)
+                {
+                    resultSmblStraightFlush[k] = 0;
+                }
+                resultSmblStraightFlush[getSymbl(cardnumber[i])]++;
+                resultSmblStraightFlush[getSymbl(cardnumber[i + 4])]++;
+                for (int j = 0; j < 4; j++)
+                {
+                    // Debug.Log("i" + i + "j" + j+"symbl"+resultSmblStraightFlush[j]);
+                    if (resultSmblStraightFlush[j] == 2)
+                    {
+                        score += 800000000;
+                        score += getCardNumber(cardnumber[i + 4]) * 1000000;
+                        break;
+                    }
+                }
+                if (score > 100000000) break;
+            }
+        }
+        for (int i = 4; i >= 2; i--)
+        {
+            if (cardnumber[i + 2] == cardnumber[i + 1] + 1 && cardnumber[i + 3] == cardnumber[i + 1] + 2 && cardnumber[i + 4] == cardnumber[i + 1] + 3 && score < 100000000)
+            {
+                for (int m = 0; m < 3; m++)
+                {
+                    if (cardnumber[i + 1] == cardnumber[m] + 9)
+                    {
+                        for (int k = 0; k < 4; k++)
+                        {
+                            resultSmblStraightFlush[k] = 0;
+                        }
+                        resultSmblStraightFlush[getSymbl(cardnumber[i + 1])]++;
+                        resultSmblStraightFlush[getSymbl(cardnumber[m])]++;
+                        for (int j = 0; j < 4; j++)
+                        {
+                            // Debug.Log("i" + i + "j" + j+"symbl"+resultSmblStraightFlush[j]);
+                            if (resultSmblStraightFlush[j] == 2)
+                            {
+                                score += 800000000;
+                                score += getCardNumber(cardnumber[i + 4]) * 1000000;
+                                break;
+                            }
+                        }
+
+                    }
+                    if (score > 100000000) break;
+                }
+                if (score > 100000000) break;
+            }
+        }
+        return score;
+    }
+    /*public int opscoreStraightflush()
+    {
+        int score = 0;
+        int[] cardnumber = new int[9];
+        int[] resultSmblStraightFlush = new int[4];
+
+        for (int i = 2; i < 9; i++)
+        {
+            cardnumber[i] = card[i];
+        }
+        Array.Sort(cardnumber);
+        for (int i = 4; i >= 2; i--)
+        {
+            if (cardnumber[i + 1] == cardnumber[i] + 1 && cardnumber[i + 2] == cardnumber[i] + 2 && cardnumber[i + 3] == cardnumber[i] + 3 && cardnumber[i + 4] == cardnumber[i] + 4)
+            {
+                for (int k = 0; k < 4; k++)
+                {
+                    resultSmblStraightFlush[k] = 0;
+                }
+                resultSmblStraightFlush[getSymbl(cardnumber[i])]++;
+                resultSmblStraightFlush[getSymbl(cardnumber[i + 4])]++;
+                for (int j = 0; j < 4; j++)
+                { Debug.Log(resultSmblStraightFlush[j]);
+                    if (resultSmblStraightFlush[j] == 2)
+                    {
+                        score += 800000000;
+                        score += getCardNumber(cardnumber[i + 4]) * 1000000;
+                        break;
+                    }
+                }
+                if (score > 100000000) break;
+            }
+        }
+        return score;
+    }*/
+    public int opscoreFour()
+    {
+        int score = 0;
+        int fourNum = 0;
+        int[] number = new int[9];
+
+        for (int i = 14; i >= 2; i--)
+        {
+            if (resultNo[i] == 4)
+            {
+                score += 700000000;
+                score += i * 1000000;
+                fourNum = i;
+                break;
+            }
+        }
+        for (int i = 2; i < 9; i++)
+        {
+            number[i] = getCardNumber(card[i]);
+            if (number[i] == fourNum) number[i] = 0;
+        }
+        Array.Sort(number);
+        score += number[6] * 10000;
+        return score;
+    }
+    public int opscoreFullhouse()
+    {
+        int score = 0;
+        int k2 = 0;
+        int k3 = 0;
+
+        for (int i = 14; i >= 2; i--)
+        {
+            if (resultNo[i] >= 2 && k2 != 1 && k3 == 1)
+            {
+                score += i * 10000;
+                k2++;
+            }
+            if (resultNo[i] == 3 && k3 != 1)
+            {
+                score += i * 1000000;
+                k3++;
+            }
+        }
+        if (k2 > 0 && k3 > 0) { score += 600000000; }
+        return score;
+    }
+    public int opscoreFlush()
+    {
+        int score = 0;
+        int[] cardnumber = new int[9];
+        int[] resultSmblFlush = new int[4];
+
+        for (int i = 2; i < 9; i++)
+        {
+            cardnumber[i] = card[i];
+        }
+        Array.Sort(cardnumber);
+        for (int i = 8; i >= 2; i--)
+        {
+                resultSmblFlush[0] = 0;
+                resultSmblFlush[1] = 0;
+                resultSmblFlush[2] = 0;
+                resultSmblFlush[3] = 0;
+                resultSmblFlush[getSymbl(cardnumber[i])]++;
+
+                for (int j = 0; j < 4; j++)
+                {
+                    if (resultSmblFlush[j] >= 5)
+                    {
+                        score += 500000000;
+                        score += getCardNumber(cardnumber[i+4]) * 1000000;
+                        break;
+                    }
+                }
+                if (score > 100000000) break;
+            
+        }
+        return score;
+    }
+    public int opscoreStraight()
+    {
+        int score = 0;
+
+        for (int i = 10; i >= 2; i--)
+        {
+
+            if (resultNo[i] > 0 && resultNo[i + 1] > 0 && resultNo[i + 2] > 0 && resultNo[i + 3] > 0 && resultNo[i + 4] > 0)
+            {
+                score += 400000000;
+                score += (5 * i + 10) * 1000000;
+                break;
+            }
+        }
+        return score;
+    }
+    public int opscoreThree()
+    {
+        int score = 0;
+        int threeNum = 0;
+        int[] number = new int[9];
+
+        for (int i = 14; i >= 2; i--)
+        {
+            if (resultNo[i] == 3)
+            {
+                score += 300000000;
+                score += i * 1000000;
+                threeNum = i;
+                break;
+            }
+        }
+        for (int i = 2; i < 9; i++)
+        {
+            number[i] = getCardNumber(card[i]);
+            if (number[i] == threeNum) number[i] = 0;
+        }
+        Array.Sort(number);
+        score += number[6] * 10000 + number[5] * 100;
+        return score;
+    }
+    public int opscoreTwopair()
+    {
+        int score = 0;
+        int pairNum = 0;
+        int pairNum2 = 0;
+        int[] number = new int[9];
+        int j = 0;
+
+        for (int i = 14; i >= 2; i--)
+        {
+            if (resultNo[i] == 2 && j != 1)
+            {
+                score += i * 1000000;
+                pairNum = i;
+                j = 1;
+            }
+            else if (resultNo[i] == 2 && j == 1)
+            {
+                score += 200000000;
+                score += i * 10000;
+                pairNum2 = i;
+            }
+        }
+        for (int i = 2; i < 9; i++)
+        {
+            number[i] = getCardNumber(card[i]);
+            if (number[i] == pairNum || number[i] == pairNum2) number[i] = 0;
+        }
+        Array.Sort(number);
+        score += number[6] * 100;
+        return score;
+    }
+    public int opscorePair()
+    {
+        int score = 0;
+        int pairNum = 0;
+        int[] number = new int[9];
 
         for (int i = 14; i >= 2; i--)
         {
@@ -979,79 +1306,26 @@ public class cardcontroller : MonoBehaviour
             {
                 score += 100000000;
                 score += i * 1000000;
-                pair_num = i;
+                pairNum = i;
                 break;
             }
         }
         for (int i = 2; i < 9; i++)
         {
             number[i] = getCardNumber(card[i]);
-            if (number[i] == pair_num) number[i] = 0;
+            if (number[i] == pairNum) number[i] = 0;
         }
         Array.Sort(number);
         score += number[6] * 10000 + number[5] * 100 + number[4];
         return score;
     }
-    public int myscoreHighcard()
+    public int opscoreHighcard()
     {
-        int score = max(getCardNumber(card[0]), getCardNumber(card[1])) * 100 + min(getCardNumber(card[0]), getCardNumber(card[1]));
+        int score = max(getCardNumber(card[7]), getCardNumber(card[8])) * 100 + min(getCardNumber(card[7]), getCardNumber(card[8]));
         return score;
     }
-
-    /*  public int betterhand()
-      {
-          int bh = 0;
-          if (myscore == 0)
-          {
-              bh = noStraightflush() + noFour() + noFullhouse() + noFlush() + noStraight() + noThree() + noTwopair() + noPair() + betterHighcard();
-          }
-          else if (myscore == 100)
-          {
-              bh = noStraightflush() + noFour() + noFullhouse() + noFlush() + noStraight() + noThree() + noTwopair() + betterPair();
-          }
-          else if (myscore == 200)
-          {
-              bh = noStraightflush() + noFour() + noFullhouse() + noFlush() + noStraight() + noThree() + betterTwopair();
-          }
-          else if (myscore == 300)
-          {
-              bh = noStraightflush() + noFour() + noFullhouse() + noFlush() + noStraight() + betterThree();
-          }
-          else if (myscore == 400)
-          {
-              bh = noStraightflush() + noFour() + noFullhouse() + noFlush() + betterStraight();
-          }
-          else if (myscore == 500)
-          {
-              bh = noStraightflush() + noFour() + noFullhouse() + betterFlush();
-          }
-          else if (myscore == 600)
-          {
-              bh = noStraightflush() + noFour() + betterFullhouse();
-          }
-          else if (myscore == 700)
-          {
-              bh = noStraightflush() + betterFour();
-          }
-          else if (myscore == 800)
-          {
-              bh = betterStraightflush();
-          }
-          return bh;
-      }*/
-
-    public void myhandCheckerV2()
-    {
-        if (Straightflush2()>0)  mypossibleways[8]++; 
-        else if (Four2()>0)      mypossibleways[7]++;
-        else if (Fullhouse2()>0) mypossibleways[6]++;
-        else if (Flush2()>0)     mypossibleways[5]++;
-        else if (Straight2()>0)  mypossibleways[4]++;
-        else if (Three2()>0)     mypossibleways[3]++;
-        else if (Twopair2()>0)   mypossibleways[2]++;
-        else if (Pair2()>0)      mypossibleways[1]++;
-        else  /*highcard*/       mypossibleways[0]++;
-    }
+    #endregion
+  
     public int myhandscore()
     {
         if (myscoreStraightflush()  > 100000000) return myscoreStraightflush();
@@ -1064,11 +1338,22 @@ public class cardcontroller : MonoBehaviour
         else if (myscorePair()      > 100000000) return myscorePair();
         else                                     return myscoreHighcard();
     }
+    public int ophandscore()
+    { 
+        if (opscoreStraightflush()  > 100000000) return opscoreStraightflush();
+        else if (opscoreFour()      > 100000000) return opscoreFour();
+        else if (opscoreFullhouse() > 100000000) return opscoreFullhouse();
+        else if (opscoreFlush()     > 100000000) return opscoreFlush();
+        else if (opscoreStraight()  > 100000000) return opscoreStraight();
+        else if (opscoreThree()     > 100000000) return opscoreThree();
+        else if (opscoreTwopair()   > 100000000) return opscoreTwopair();
+        else if (opscorePair()      > 100000000) return opscorePair();
+        else                                     return opscoreHighcard();
+    }
     public void Calculate()
-        {
+    {
         ClearMemory();
         PutinMemory(); 
-        
         //check for any errors
         for (int i = 0; i < 6; i++)
         { if (card[i] == 0) {continue; }
@@ -1088,20 +1373,9 @@ public class cardcontroller : MonoBehaviour
         // 7cards are in play
         if(knowncardno==7)
         {
-           /* myhandCheckerV2();
-            for(int i = 8; i >=0; i--)
-            {
-                if (mypossibleways[i] > 0)
-                {
-                    myscore = i * 100;
-                    break;
-                }
-            }*/
             Debug.Log(myhandscore());
-           /* for(int i = 2; i < 14; i++)
-            {
-                Debug.Log(resultNo[i]);
-            }*/
+            myscore = myhandscore();
+            //reset for opponent
             for (int i = 0; i < 14; i++)
             {
                 resultNo[i] = 0;
@@ -1110,56 +1384,39 @@ public class cardcontroller : MonoBehaviour
             {
                 resultSmbl[i] = 0;
             }
-
             PutinMemoryOpponent();
             // all possible hands for opponent
             for (int i = 1; i <= 52; i++)
             {
                 if (i != card[0] && i != card[1] && i != card[2] && i != card[3] && i != card[4] && i != card[5] && i != card[6])
                 {
-                    if (i % 13 == 0) { resultNo[13]++; }
-                    else if (i % 13 == 1) { resultNo[14]++; resultNo[1]++; }
-                    else { resultNo[i % 13]++; }
-                    card[7] += i;
-                    if (i / 13 == 4) resultSmbl[3]++;
-                    else { resultSmbl[i / 13]++; }
+                    setResultNumber(i);
+                    card[7] = i;
+                    resultSmbl[getSymbl(i)]++;
                     for (int j = i + 1; j <= 52; j++)
                     {
                         if (j != card[0] && j != card[1] && j != card[2] && j != card[3] && j != card[4] && j != card[5] && j != card[6])
                         {
-                            if (j % 13 == 0) { resultNo[13]++; }
-                            else if (j % 13 == 1) { resultNo[14]++; resultNo[1]++; }
-                            else { resultNo[j % 13]++; }
-                            card[8] += j;
-                            if (j / 13 == 4) resultSmbl[3]++;
-                            else { resultSmbl[j / 13]++; }
-                            // betterhand();
-                            // oppossibleways[0] += 990- oppossibleways[]
-                            if (j % 13 == 0) { resultNo[13]--; }
-                            else if (j % 13 == 1) { resultNo[14]--; resultNo[1]--; }
-                            else { resultNo[j % 13]--; }
+                            setResultNumber(j);
+                            card[8] = j;
+                            resultSmbl[getSymbl(i)]++;
+
+                            opscore = 0;                                            //get opponent hand score
+                            opscore = ophandscore();                                //compare with my hand score
+                            if (opscore > myscore) { numberOpponentWinningHands++; Debug.Log(opscore+"i"+i+"j"+j); }
+
+                            resetResultNumber(j);
                             card[8] = 0;
-                            if (j / 13 == 4) resultSmbl[3]--;
-                            else { resultSmbl[j / 13]--; }
+                            resultSmbl[getSymbl(i)]--;
                         }
                     }
-                    if (i % 13 == 0) { resultNo[13]--; }
-                    else if (i % 13 == 1) { resultNo[14]--; resultNo[1]--;}
-                    else { resultNo[i % 13]--; }
+                    resetResultNumber(i);
                     card[7] =0;
-                    if (i / 13 == 4) resultSmbl[3]--;
-                    else { resultSmbl[i / 13]--; }
+                    resultSmbl[getSymbl(i)]--;
                 }
-            }
-            
-
+            }   
         }
-     
-        
-       
+        Debug.Log(numberOpponentWinningHands);
     }
-
-
-
 }
 
