@@ -1,0 +1,1165 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+using System;
+
+
+public class cardcontroller : MonoBehaviour
+{
+    GameObject clickedGameObject;
+    public GameObject hand1;
+    public GameObject hand2;
+    public GameObject board1;
+    public GameObject board2;
+    public GameObject board3;
+    public GameObject board4;
+    public GameObject board5;
+    public GameObject canvas;
+    public GameObject errorcanvas;
+    public GameObject errorcanvas2;
+    public GameObject chosen;
+    public Sprite[] sprites;
+
+    Text atext;                          // initial text also used after input
+    Text btext;                          // text after input 
+    Image aimage;                        //initial image also used after inout
+    Image bimage;                        //image after input
+    Image current_image;                 //for moving to next card
+    Text curret_text;                    //for moving to next card
+    Sprite asprite;                      //initial sprite
+    int[] card =new int[9];              //check which cards are used     ace of spade is 1, 2 of spade is 2,,,, 3 of diamond is (3+13)=16,,,,
+    int[] resultNo =new int[15];         // (1 is resultNo[1], will use for 12345 srtaight) , 2 is resultNo[2],,,13 is resultNo[13],1is also resultNo[14], 
+    int[] resultSmbl =new int[4];        //0 is Spades, 1 is Diamonds, 2 is Clubs, 3 is Hearts 
+    int[] mypossibleways = new int[9];   // 0 is highcard 1 is pair 2 is twopair ,,,, 8 is straight flush
+    int[] oppossibleways = new int[9];   // 0 is highcard 1 is pair 2 is twopair ,,,, 8 is straight flush
+    int cardno;                          //number of card hand1 is 1, hand2 is 2, board1 is 3,,,,,opponent1 is 7, opponent2 is 8 
+    int knowncardno =0;                  //number of delt cards
+    int myscore =0;                      //scoring my hand for comparison ex.pair is 100000
+    int opscore =0;                      //same but for opponent
+
+    void Start()
+    {
+        clickedGameObject = hand1;
+        setAlltoBlanck();
+    }
+    void Update()
+    {   
+       if (Input.GetMouseButtonDown(0))
+       {
+          Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+          RaycastHit2D hit2d = Physics2D.Raycast((Vector2)ray.origin, (Vector2)ray.direction);
+          if (hit2d)
+          {
+              clickedGameObject = hit2d.transform.gameObject;
+              var rectTransformp = clickedGameObject.GetComponent<RectTransform>();
+              var rectTransformc = chosen.GetComponent<RectTransform>();
+              rectTransformc.localPosition = rectTransformp.localPosition ; 
+          }
+       }
+    }
+    
+    public void setAlltoBlanck()
+    {
+        atext = hand1.GetComponentInChildren<Text>();
+        atext.text = "-";
+        atext = hand2.GetComponentInChildren<Text>();
+        atext.text = "-";
+        atext = board1.GetComponentInChildren<Text>();
+        atext.text = "-";
+        atext = board2.GetComponentInChildren<Text>();
+        atext.text = "-";
+        atext = board3.GetComponentInChildren<Text>();
+        atext.text = "-";
+        atext = board4.GetComponentInChildren<Text>();
+        atext.text = "-";
+        atext = board5.GetComponentInChildren<Text>();
+        atext.text = "-";
+
+        aimage = hand1.GetComponentInChildren<Image>();
+        aimage.sprite = sprites[0];
+        aimage = hand2.GetComponentInChildren<Image>();
+        aimage.sprite = sprites[0];
+        aimage = board1.GetComponentInChildren<Image>();
+        aimage.sprite = sprites[0];
+        aimage = board2.GetComponentInChildren<Image>();
+        aimage.sprite = sprites[0];
+        aimage = board3.GetComponentInChildren<Image>();
+        aimage.sprite = sprites[0];
+        aimage = board4.GetComponentInChildren<Image>();
+        aimage.sprite = sprites[0];
+        aimage = board5.GetComponentInChildren<Image>();
+        aimage.sprite = sprites[0];
+    } // initialize 
+    //things with setting card to card number and symbol
+    #region
+    public void PutinMemory()
+    {
+        for (int j = 0; j < 7; j++)
+        {
+            cardno = j;
+            if (cardno == 0) { clickedGameObject = hand1; }
+            if (cardno == 1) { clickedGameObject = hand2; }
+            if (cardno == 2) { clickedGameObject = board1; }
+            if (cardno == 3) { clickedGameObject = board2; }
+            if (cardno == 4) { clickedGameObject = board3; }
+            if (cardno == 5) { clickedGameObject = board4; }
+            if (cardno == 6) { clickedGameObject = board5; }
+         
+           
+            bimage = clickedGameObject.GetComponentInChildren<Image>();
+            for (int i = 1; i < 5; i++)
+            {
+                if (bimage.sprite == sprites[i])
+                {
+                    card[cardno] += 13 * (i-1);
+                    resultSmbl[i - 1]++;
+                }
+            }
+            btext = clickedGameObject.GetComponentInChildren<Text>();
+            for (int i = 2; i < 10; i++)
+            {
+                if (btext.text == i.ToString())
+                {
+                    card[cardno] += i;
+                    resultNo[i]++;
+                }
+            }
+
+            if (btext.text == "10")
+            {
+                card[cardno] += 10;
+                resultNo[10]++;
+            }
+            if (btext.text == "J")
+            {
+                card[cardno] += 11;
+                resultNo[11]++;
+            }
+            if (btext.text == "Q")
+            {
+                card[cardno] += 12;
+                resultNo[12]++;
+            }
+            if (btext.text == "K")
+            {
+                card[cardno] += 13;
+                resultNo[13]++;
+            }
+            if (btext.text == "A")
+            {
+                card[cardno] += 1;
+                resultNo[1]++; resultNo[14]++;
+            }
+            if (bimage.sprite == sprites[0] && btext.text != "-")
+            {
+                canvas.SetActive(false);
+                errorcanvas2.SetActive(true);
+            }
+            if (bimage.sprite != sprites[0] && btext.text == "-")
+            {
+                canvas.SetActive(false);
+                errorcanvas2.SetActive(true);
+            }
+         //   Debug.Log(card[cardno]);
+        }
+        
+    }
+    public void PutinMemoryOpponent()
+    {
+        for (int j = 2; j < 7; j++)
+        {
+            cardno = j;
+            if (cardno == 0) { clickedGameObject = hand1; }
+            if (cardno == 1) { clickedGameObject = hand2; }
+            if (cardno == 2) { clickedGameObject = board1; }
+            if (cardno == 3) { clickedGameObject = board2; }
+            if (cardno == 4) { clickedGameObject = board3; }
+            if (cardno == 5) { clickedGameObject = board4; }
+            if (cardno == 6) { clickedGameObject = board5; }
+
+
+            bimage = clickedGameObject.GetComponentInChildren<Image>();
+            for (int i = 1; i < 5; i++)
+            {
+                if (bimage.sprite == sprites[i])
+                {
+                    //card[cardno] += 13 * i;
+                    resultSmbl[i - 1]++;
+                }
+            }
+            btext = clickedGameObject.GetComponentInChildren<Text>();
+            for (int i = 2; i < 10; i++)
+            {
+                if (btext.text == i.ToString())
+                {
+                    //card[cardno] += i;
+                    resultNo[i]++;
+                }
+            }
+
+            if (btext.text == "10")
+            {
+               // card[cardno] += 10;
+                resultNo[10]++;
+            }
+            if (btext.text == "J")
+            {
+               // card[cardno] += 11;
+                resultNo[11]++;
+            }
+            if (btext.text == "Q")
+            {
+               // card[cardno] += 12;
+                resultNo[12]++;
+            }
+            if (btext.text == "K")
+            {
+              //  card[cardno] += 13;
+                resultNo[13]++;
+            }
+            if (btext.text == "A")
+            {
+               // card[cardno] += 1;
+                resultNo[1]++; resultNo[14]++;
+            }
+            //Debug.Log(card[cardno]);
+        }
+    }
+    public void ClearMemory()
+    {
+        for (int i = 0; i < 7; i++)
+        {
+            card[i] = 0;
+        }
+        knowncardno = 0;
+        myscore = 0;
+        opscore = 0;
+        for (int i = 0; i < 14; i++)
+        {
+            resultNo[i] = 0;
+        }
+        for (int i = 0; i < 4; i++)
+        {
+            resultSmbl[i] = 0;
+        }
+
+    }
+    #endregion
+    public int getCardNumber(int a)
+    {
+        int cardnumber;
+        if (a % 13 == 0) { cardnumber = 13; }
+        else if (a % 13 == 1) { cardnumber = 14; }
+        else { cardnumber = a % 13; }
+        return cardnumber;
+    } //get card number
+    //buttons
+    #region
+    public void NextCard() {
+            current_image = clickedGameObject.GetComponentInChildren<Image>();
+            curret_text = clickedGameObject.GetComponentInChildren<Text>();
+
+
+        if (current_image.sprite != sprites[0] && curret_text.text != "-")
+        {
+                if (clickedGameObject == hand1) { clickedGameObject = hand2; }
+                else if (clickedGameObject == hand2) { clickedGameObject = board1; }
+                else if (clickedGameObject == board1) { clickedGameObject = board2; }
+                else if (clickedGameObject == board2) { clickedGameObject = board3; }
+                else if (clickedGameObject == board3) { clickedGameObject = board4; }
+                else if (clickedGameObject == board4) { clickedGameObject = board5; }
+            var rectTransformp = clickedGameObject.GetComponent<RectTransform>();
+            var rectTransformc = chosen.GetComponent<RectTransform>();
+            rectTransformc.localPosition = rectTransformp.localPosition;
+
+        }
+    }    
+
+    public void Spade()
+    {
+        aimage = clickedGameObject.GetComponentInChildren<Image>();
+        aimage.sprite = sprites[1];
+         NextCard();
+
+
+    }
+    public void Diamond()
+    {
+        aimage = clickedGameObject.GetComponentInChildren<Image>();
+        aimage.sprite = sprites[2];
+        NextCard(); 
+
+    }
+
+    public void Clover()
+    {
+        aimage = clickedGameObject.GetComponentInChildren<Image>();
+        aimage.sprite = sprites[3];
+        NextCard();
+
+    }
+    public void Heart()
+    {
+        aimage = clickedGameObject.GetComponentInChildren<Image>();
+        aimage.sprite = sprites[4];
+        NextCard();
+
+    }
+    public void Erase()
+    {
+        aimage = clickedGameObject.GetComponentInChildren<Image>();
+        aimage.sprite = sprites[0];
+        atext = clickedGameObject.GetComponentInChildren<Text>();
+        atext.text = "-";
+        NextCard();
+
+    }
+    public void Click2()
+    {
+        atext = clickedGameObject.GetComponentInChildren<Text>();
+        atext.text = "2";
+        NextCard();
+
+    }
+    public void Click3()
+    {
+        atext = clickedGameObject.GetComponentInChildren<Text>();
+        atext.text = "3";
+        NextCard();
+
+    }
+    public void Click4()
+    {
+        atext = clickedGameObject.GetComponentInChildren<Text>();
+        atext.text = "4";
+        NextCard();
+
+    }
+    public void Click5()
+    {
+        atext = clickedGameObject.GetComponentInChildren<Text>();
+        atext.text = "5";
+        NextCard();
+
+    }
+    public void Click6()
+    {
+        atext = clickedGameObject.GetComponentInChildren<Text>();
+        atext.text = "6";
+        NextCard();
+
+    }
+    public void Click7()
+    {
+        atext = clickedGameObject.GetComponentInChildren<Text>();
+        atext.text = "7";
+        NextCard();
+
+    }
+    public void Click8()
+    {
+        atext = clickedGameObject.GetComponentInChildren<Text>();
+        atext.text = "8";
+        NextCard();
+
+    }
+    public void Click9()
+    {
+        atext = clickedGameObject.GetComponentInChildren<Text>();
+        atext.text = "9";
+        NextCard();
+
+    }
+    public void Click10()
+    {
+        atext = clickedGameObject.GetComponentInChildren<Text>();
+        atext.text = "10";
+        NextCard();
+
+    }
+    public void ClickJ()
+    {
+        atext = clickedGameObject.GetComponentInChildren<Text>();
+        atext.text = "J";
+        NextCard();
+
+    }
+    public void ClickQ()
+    {
+        atext = clickedGameObject.GetComponentInChildren<Text>();
+        atext.text = "Q";
+        NextCard();
+
+    }
+    public void ClickK()
+    {
+        atext = clickedGameObject.GetComponentInChildren<Text>();
+        atext.text = "K";
+        NextCard();
+
+    }
+    public void ClickA()
+    {
+        atext = clickedGameObject.GetComponentInChildren<Text>();
+        atext.text = "A";
+        NextCard();
+
+    }
+    public void ClickOKerror()
+    {
+        if (errorcanvas2.activeSelf == false)
+        {
+            canvas.SetActive(true);
+        }
+        errorcanvas.SetActive(false);
+    }
+    public void ClickOKerror2()
+    {
+        if (errorcanvas.activeSelf == false)
+        {
+            canvas.SetActive(true);
+        }
+        errorcanvas2.SetActive(false);
+    }
+    #endregion //buttons
+
+   
+    // calculation methods
+    #region
+    public int Computation(int a, int b)
+    {
+        int ctmp = 1;
+        for(int i=a; i>a-b; i--)
+        {
+            ctmp *= i; Debug.Log(i);
+        }
+        
+        ctmp /= Factorial(b);
+        return ctmp;
+    }
+    public int Factorial(int c)
+    {
+        int tmp = 1;
+        int k = c;
+        while (k >=1)
+        {
+            tmp *= k;
+            k--;
+        }
+        return tmp;
+    }
+    public int max(int a,int b)
+    {
+        if (a >= b) return a;
+        else return b;
+    }
+    public int min(int a, int b)
+    {
+        if (a <= b) return a;
+        else return b;
+    }
+    #endregion
+
+    //number of different hands version 1
+    #region
+    public int Straightflush()
+    {
+        int sf = 0;
+        int s = 0;
+        for (int i = 1; i <= 10; i++)
+        {
+
+            if (resultNo[i] > 0 && resultNo[i + 1] > 0 && resultNo[i + 2] > 0 && resultNo[i + 3]>0 && resultNo[i + 4] > 0)
+            {
+                s++;
+            }
+        }
+        int f = 0;
+        for (int i = 0; i < 4; i++)
+        {
+
+            if (resultSmbl[i] >= 5)
+            {
+                f++;
+            }
+        }
+        if (s > 0 && f > 0) { sf = 1; }
+        return sf;
+    }  //8
+    public int Four()
+    {
+        int k4 = 0;
+        for (int i = 2; i <= 14; i++)
+        {
+            if (resultNo[i] == 4)
+            {
+                k4++;
+            }
+        }
+
+        //if (k > 1) { k = 0; }// two pair
+        return k4;
+    }           //7
+    public int Fullhouse()
+    {
+        int fh = 0;
+        int k2 = 0;
+        int k3 = 0;
+        for (int i = 2; i <= 14; i++)
+        {
+
+            if (resultNo[i] == 2)
+            {
+                k2++;
+            }
+            if (resultNo[i] == 3) 
+            {
+                k3++;
+            }
+        }
+        if (k2 > 0 && k3 == 1) { fh = 1; }
+        return fh;
+    }      //6
+    public int Flush()
+    {
+        int f = 0;
+        for (int i = 0; i < 4; i++)
+        {
+
+            if (resultSmbl[i] >= 5)
+            {
+                f++;
+            }
+        }
+        int s = 0;
+        for (int i = 0; i <= 8; i++)
+        {
+
+            if (resultNo[i] > 0 && resultNo[i + 1] > 0 && resultNo[i + 2] > 0 && resultNo[i + 3] > 0 && resultNo[i + 4] > 0)
+            {
+                s++;
+            }
+        }
+        if (s>0) { f = 0; }
+        return f;
+    }          //5
+    public int Straight()
+    {
+        int s = 0;
+        for (int i = 0; i <= 8; i++)
+        {
+
+            if (resultNo[i] > 0 && resultNo[i + 1]>0 && resultNo[i + 2] > 0 && resultNo[i + 3]>0 && resultNo[i + 4] > 0)
+            {
+                s++;
+            }
+        }
+        int f = 0;
+        for (int i = 0; i < 4; i++)
+        {
+
+            if (resultSmbl[i] >= 5)
+            {
+                f++;
+            }
+        }
+        if (f > 0) { s = 0; }
+        return s;
+    }       //4
+    public int Three()
+    {
+        int k2 = 0;
+        int k3 = 0;
+        int k4 = 0;
+        for (int i = 2; i <= 14; i++)
+        {
+            if (resultNo[i] == 2) //fullhouse
+            {
+                k2++;
+            }
+            if (resultNo[i] == 3)
+            {
+                k3++;
+            }
+            if (resultNo[i] == 4) //four
+            {
+                k4++;
+            }
+
+        }
+        if (k4 > 0 || k2>0) { k3 = 0; }
+        if (k3 > 1) { k3 = 1; }// two triple
+        return k3;
+    }          //3
+    public int Twopair()
+    {
+        int k22 = 0;
+        int k3 = 0;
+        for (int i = 2; i < 14; i++)
+        {
+            if (resultNo[i] == 2)
+            {
+                k22++;
+            }
+            if (resultNo[i] == 3) //three fullhouse
+            {
+                k3++;
+            }
+
+        }
+        if (k22 != 2 || k3 > 0) { k22 = 0; }
+        if (k22 == 2) { k22--; }
+        return k22;
+    }        //2
+    public int Pair()
+    {
+        int k2 = 0;
+        int k3 = 0;
+        int k4 = 0;
+        for (int i = 2; i <= 14; i++)
+        {
+            if (resultNo[i] == 2)
+            {
+                k2++;
+            }
+            if (resultNo[i] == 3) //three fullhouse
+            {
+                k3++;
+            }
+            if (resultNo[i] == 4) //four
+            {
+                k4++;
+            }
+            //if (resultNo[i] > 4) { Debug.Log("error"); }
+
+        }
+        if (k3 > 0 || k4 > 0 || k2 > 1) { k2 = 0; }//more than twopair
+
+        return k2;
+    }           //1
+    #endregion
+
+    //number of hands version 2
+    #region
+    public int Straightflush2()
+    {
+        int sf = 0;
+        int s = 0;
+        for (int i = 1; i <= 10; i++)
+        {
+
+            if (resultNo[i] > 0 && resultNo[i + 1] > 0 && resultNo[i + 2] > 0 && resultNo[i + 3] > 0 && resultNo[i + 4] > 0)
+            {
+                s++;
+            }
+        }
+        int f = 0;
+        for (int i = 0; i < 4; i++)
+        {
+
+            if (resultSmbl[i] >= 5)
+            {
+                f++;
+            }
+        }
+        if (s > 0 && f > 0) { sf = 1; }
+        return sf;
+    }  //8
+    public int Four2()
+    {
+        int k4 = 0;
+        for (int i = 2; i <= 14; i++)
+        {
+            if (resultNo[i] == 4)
+            {
+                k4++;
+            }
+        }
+        return k4;
+    }           //7
+    public int Fullhouse2()
+    {
+        int fh = 0;
+        int k2 = 0;
+        int k3 = 0;
+        for (int i = 2; i <= 14; i++)
+        {
+
+            if (resultNo[i] == 2)
+            {
+                k2++;
+            }
+            if (resultNo[i] == 3)
+            {
+                k3++;
+            }
+        }
+        if (k2 > 0 && k3 == 1) { fh = 1; }
+        return fh;
+    }      //6
+    public int Flush2()
+    {
+        int f = 0;
+        for (int i = 0; i < 4; i++)
+        {
+
+            if (resultSmbl[i] >= 5)
+            {
+                f++;
+            }
+        }
+        return f;
+    }          //5
+    public int Straight2()
+    {
+        int s = 0;
+        for (int i = 0; i <= 8; i++)
+        {
+
+            if (resultNo[i] > 0 && resultNo[i + 1] > 0 && resultNo[i + 2] > 0 && resultNo[i + 3] > 0 && resultNo[i + 4] > 0)
+            {
+                s++;
+            }
+        }
+        return s;
+    }       //4
+    public int Three2()
+    {
+        int k3 = 0;
+        for (int i = 2; i <= 14; i++)
+        {
+
+            if (resultNo[i] == 3)
+            {
+                k3++;
+            }
+        }
+        if (k3 > 0) k3 = 1; //dont count threes twice ex. 1112223
+        return k3;
+    }          //3
+    public int Twopair2()
+    {
+        int k22 = 0;
+        for (int i = 2; i < 14; i++)
+        {
+            if (resultNo[i] == 2)
+            {
+                k22++;
+            }
+        }
+        return k22;
+    }        //2
+    public int Pair2()
+    {
+        int k2 = 0;
+       
+        for (int i = 2; i <= 14; i++)
+        {
+            if (resultNo[i] == 2)
+            {
+                k2++;
+            }
+        }
+        return k2;
+    }           //1
+    #endregion
+    public int myscoreStraightflush()
+    {
+        int score = 0;
+        int[] cardnumber = new int[7];
+        int[] resultSmblStraightFlush = new int[4];
+
+        for(int i = 0; i < 7; i++)
+        {
+            cardnumber[i] = card[i];
+        }
+        Array.Sort(cardnumber);
+        for(int i = 2; i >= 0; i--)
+        {
+            if (cardnumber[i + 1] == cardnumber[i] + 1 && cardnumber[i + 2] == cardnumber[i] + 2 && cardnumber[i + 3] == cardnumber[i] + 3 && cardnumber[i + 4] == cardnumber[i] + 4)
+            {
+                resultSmblStraightFlush[0] = 0;
+                resultSmblStraightFlush[1] = 0;
+                resultSmblStraightFlush[2] = 0;
+                resultSmblStraightFlush[3] = 0;
+                if (cardnumber[i] / 13 == 4) resultSmblStraightFlush[3]++;
+                else { resultSmblStraightFlush[cardnumber[i] / 13]++; }
+                if (cardnumber[i+4] / 13 == 4) resultSmblStraightFlush[3]++;
+                else { resultSmblStraightFlush[cardnumber[i+4] / 13]++; } 
+                for (int j = 0; j < 4; j++)
+                {
+                    if (resultSmblStraightFlush[j] >= 2)
+                    {
+                        score += 800000000;
+                        score += getCardNumber(cardnumber[i + 4]) * 1000000;
+                        break;
+                    }
+                }
+                if (score > 100000000) break;
+            }
+        }
+        return score;
+    }  //8
+    public int myscoreFour()
+    {
+        int score = 0;
+        int fourNum = 0;
+        int[] number = new int[7];
+
+        for (int i = 14; i >= 2; i--)
+        {
+            if (resultNo[i] == 4)
+            {
+                score += 700000000;
+                score += i * 1000000;
+                fourNum = i;
+                break;
+            }
+        }
+        for (int i = 0; i < 7; i++)
+        {
+            number[i] = getCardNumber(card[i]);
+            if (number[i] == fourNum) number[i] = 0;
+        }
+        Array.Sort(number);
+        score += number[6] * 10000;
+        return score;
+    }
+    public int myscoreFullhouse()
+    {
+        int score = 0;
+        int k2 = 0;
+        int k3 = 0;
+
+        for (int i = 14; i >= 2; i--)
+        {
+            if (resultNo[i] >= 2 && k2 != 1 && k3 == 1)
+            {
+                score += i * 10000;
+                k2++;
+            }
+            if (resultNo[i] == 3 && k3 != 1)
+            {
+                score += i * 1000000;
+                k3++;
+            }
+        }
+        if (k2 > 0 && k3 >0) { score += 600000000; }
+        return score;
+    }
+    public int myscoreFlush()
+    {
+        int score = 0;
+        int[] number = new int[7];
+
+        for (int i = 0; i < 4; i++)
+        {
+
+            if (resultSmbl[i] >= 5)
+            {
+                score += 500000000;
+            }
+        }
+        for (int i = 0; i < 7; i++)
+        {
+            number[i] = getCardNumber(card[i]);
+        }
+        Array.Sort(number);
+        score += number[6] * 1000000;
+        return score;
+    }          //5
+    public int myscoreStraight()
+    {
+        int score = 0;
+
+        for (int i = 10; i >= 2; i--)
+        {
+
+            if (resultNo[i] > 0 && resultNo[i + 1] > 0 && resultNo[i + 2] > 0 && resultNo[i + 3] > 0 && resultNo[i + 4] > 0)
+            {
+                score += 400000000;
+                score += (5*i+10)*1000000;
+                break;
+            }
+        }
+        return score;
+    }
+    public int myscoreThree()
+    {
+        int score = 0;
+        int threeNum = 0;
+        int[] number = new int[7];
+
+        for (int i = 14; i >= 2; i--)
+        {
+            if (resultNo[i] == 3)
+            {
+                score += 300000000;
+                score += i * 1000000;
+                threeNum = i;
+                break;
+            }
+        }
+        for (int i = 0; i < 7; i++)
+        {
+            number[i] = getCardNumber(card[i]);
+            if (number[i] == threeNum) number[i] = 0;
+        }
+        Array.Sort(number);
+        score += number[6] * 10000 + number[5] * 100;
+        return score;
+    }
+    public int myscoreTwopair()
+    {
+        int score = 0;
+        int pairNum=0;
+        int pairNum2=0;
+        int[] number = new int[7];
+        int j = 0;
+
+        for (int i = 14; i >=2 ; i--)
+        {
+            if (resultNo[i] == 2 && j!=1)
+            {
+                score += i * 1000000;
+                pairNum = i;
+                j = 1;
+            }
+            else if (resultNo[i] == 2 && j==1)
+            {
+                score += 200000000;
+                score += i * 10000;
+                pairNum2 = i;
+            }
+        }
+        for (int i = 0; i < 7; i++)
+        {
+            number[i] = getCardNumber(card[i]);
+            if (number[i] == pairNum ||number[i] == pairNum2) number[i] = 0;
+        }
+        Array.Sort(number);
+        score += number[6] * 100;
+        return score;
+    }        //2
+    public int myscorePair()
+    {
+        int score = 0;
+        int pairNum = 0;
+        int[] number = new int[7];
+
+        for (int i = 14; i >= 2; i--)
+        {
+            if (resultNo[i] == 2)
+            {
+                score += 100000000;
+                score += i * 1000000;
+                pairNum = i;
+                break;
+            }
+        }
+        for(int i = 0; i < 7; i++)
+        {
+            number[i] = getCardNumber(card[i]);
+            if (number[i] == pairNum) number[i] = 0;
+        }
+        Array.Sort(number);
+        score += number[6] * 10000 + number[5] * 100 + number[4];
+        return score;
+    }
+    public int opbestPair()
+    {
+        int score = 0;
+        int pair_num=0;
+        int[] number = new int[7];
+
+        for (int i = 14; i >= 2; i--)
+        {
+            if (resultNo[i] == 2)
+            {
+                score += 100000000;
+                score += i * 1000000;
+                pair_num = i;
+                break;
+            }
+        }
+        for (int i = 2; i < 9; i++)
+        {
+            number[i] = getCardNumber(card[i]);
+            if (number[i] == pair_num) number[i] = 0;
+        }
+        Array.Sort(number);
+        score += number[6] * 10000 + number[5] * 100 + number[4];
+        return score;
+    }
+    public int myscoreHighcard()
+    {
+        int score = max(getCardNumber(card[0]), getCardNumber(card[1])) * 100 + min(getCardNumber(card[0]), getCardNumber(card[1]));
+        return score;
+    }
+
+    /*  public int betterhand()
+      {
+          int bh = 0;
+          if (myscore == 0)
+          {
+              bh = noStraightflush() + noFour() + noFullhouse() + noFlush() + noStraight() + noThree() + noTwopair() + noPair() + betterHighcard();
+          }
+          else if (myscore == 100)
+          {
+              bh = noStraightflush() + noFour() + noFullhouse() + noFlush() + noStraight() + noThree() + noTwopair() + betterPair();
+          }
+          else if (myscore == 200)
+          {
+              bh = noStraightflush() + noFour() + noFullhouse() + noFlush() + noStraight() + noThree() + betterTwopair();
+          }
+          else if (myscore == 300)
+          {
+              bh = noStraightflush() + noFour() + noFullhouse() + noFlush() + noStraight() + betterThree();
+          }
+          else if (myscore == 400)
+          {
+              bh = noStraightflush() + noFour() + noFullhouse() + noFlush() + betterStraight();
+          }
+          else if (myscore == 500)
+          {
+              bh = noStraightflush() + noFour() + noFullhouse() + betterFlush();
+          }
+          else if (myscore == 600)
+          {
+              bh = noStraightflush() + noFour() + betterFullhouse();
+          }
+          else if (myscore == 700)
+          {
+              bh = noStraightflush() + betterFour();
+          }
+          else if (myscore == 800)
+          {
+              bh = betterStraightflush();
+          }
+          return bh;
+      }*/
+
+    public void myhandCheckerV2()
+    {
+        if (Straightflush2()>0)  mypossibleways[8]++; 
+        else if (Four2()>0)      mypossibleways[7]++;
+        else if (Fullhouse2()>0) mypossibleways[6]++;
+        else if (Flush2()>0)     mypossibleways[5]++;
+        else if (Straight2()>0)  mypossibleways[4]++;
+        else if (Three2()>0)     mypossibleways[3]++;
+        else if (Twopair2()>0)   mypossibleways[2]++;
+        else if (Pair2()>0)      mypossibleways[1]++;
+        else  /*highcard*/       mypossibleways[0]++;
+    }
+    public int myhandscore()
+    {
+        if (myscoreStraightflush()  > 100000000) return myscoreStraightflush();
+        else if (myscoreFour()      > 100000000) return myscoreFour();
+        else if (myscoreFullhouse() > 100000000) return myscoreFullhouse();
+        else if (myscoreFlush()     > 100000000) return myscoreFlush();
+        else if (myscoreStraight()  > 100000000) return myscoreStraight();
+        else if (myscoreThree()     > 100000000) return myscoreThree();
+        else if (myscoreTwopair()   > 100000000) return myscoreTwopair();
+        else if (myscorePair()      > 100000000) return myscorePair();
+        else                                     return myscoreHighcard();
+    }
+    public void Calculate()
+        {
+        ClearMemory();
+        PutinMemory(); 
+        
+        //check for any errors
+        for (int i = 0; i < 6; i++)
+        { if (card[i] == 0) {continue; }
+            for (int j = i + 1; j < 7; j++)
+            {
+                    if (card[i] == card[j] ) { canvas.SetActive(false); errorcanvas.SetActive(true);return; }
+            }
+        }
+        //check how many cards are in play
+        for(int i=0;i<7; i++)
+        {
+            if (card[i] != 0)
+            {
+                knowncardno++;
+            }
+        }
+        // 7cards are in play
+        if(knowncardno==7)
+        {
+           /* myhandCheckerV2();
+            for(int i = 8; i >=0; i--)
+            {
+                if (mypossibleways[i] > 0)
+                {
+                    myscore = i * 100;
+                    break;
+                }
+            }*/
+            Debug.Log(myhandscore());
+           /* for(int i = 2; i < 14; i++)
+            {
+                Debug.Log(resultNo[i]);
+            }*/
+            for (int i = 0; i < 14; i++)
+            {
+                resultNo[i] = 0;
+            }
+            for (int i = 0; i < 4; i++)
+            {
+                resultSmbl[i] = 0;
+            }
+
+            PutinMemoryOpponent();
+            // all possible hands for opponent
+            for (int i = 1; i <= 52; i++)
+            {
+                if (i != card[0] && i != card[1] && i != card[2] && i != card[3] && i != card[4] && i != card[5] && i != card[6])
+                {
+                    if (i % 13 == 0) { resultNo[13]++; }
+                    else if (i % 13 == 1) { resultNo[14]++; resultNo[1]++; }
+                    else { resultNo[i % 13]++; }
+                    card[7] += i;
+                    if (i / 13 == 4) resultSmbl[3]++;
+                    else { resultSmbl[i / 13]++; }
+                    for (int j = i + 1; j <= 52; j++)
+                    {
+                        if (j != card[0] && j != card[1] && j != card[2] && j != card[3] && j != card[4] && j != card[5] && j != card[6])
+                        {
+                            if (j % 13 == 0) { resultNo[13]++; }
+                            else if (j % 13 == 1) { resultNo[14]++; resultNo[1]++; }
+                            else { resultNo[j % 13]++; }
+                            card[8] += j;
+                            if (j / 13 == 4) resultSmbl[3]++;
+                            else { resultSmbl[j / 13]++; }
+                            // betterhand();
+                            // oppossibleways[0] += 990- oppossibleways[]
+                            if (j % 13 == 0) { resultNo[13]--; }
+                            else if (j % 13 == 1) { resultNo[14]--; resultNo[1]--; }
+                            else { resultNo[j % 13]--; }
+                            card[8] = 0;
+                            if (j / 13 == 4) resultSmbl[3]--;
+                            else { resultSmbl[j / 13]--; }
+                        }
+                    }
+                    if (i % 13 == 0) { resultNo[13]--; }
+                    else if (i % 13 == 1) { resultNo[14]--; resultNo[1]--;}
+                    else { resultNo[i % 13]--; }
+                    card[7] =0;
+                    if (i / 13 == 4) resultSmbl[3]--;
+                    else { resultSmbl[i / 13]--; }
+                }
+            }
+            
+
+        }
+     
+        
+       
+    }
+
+
+
+}
+
