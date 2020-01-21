@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using System;
-
+using System.Linq;
 
 public class cardcontroller : MonoBehaviour
 {
+    //declare variables
+    #region
     GameObject clickedGameObject;
     public GameObject hand1;
     public GameObject hand2;
@@ -38,8 +40,10 @@ public class cardcontroller : MonoBehaviour
     int myscore =0;                      //scoring my hand for comparison ex.pair is 100000
     int opscore =0;                      //same but for opponent
     int numberOpponentWinningHands = 0;  //number of hands the opponent won
+    #endregion
 
-
+    // initialize and update
+    #region
     void Start()
     {
         clickedGameObject = hand1;
@@ -92,8 +96,10 @@ public class cardcontroller : MonoBehaviour
         aimage.sprite = sprites[0];
         aimage = board5.GetComponentInChildren<Image>();
         aimage.sprite = sprites[0];
-    } // initialize 
-    //things with setting card to card number and symbol
+    }
+    #endregion]
+    
+    //things with setting card to card number and symbol nad reseting results 
     #region
     public void PutinMemory()
     {
@@ -233,6 +239,7 @@ public class cardcontroller : MonoBehaviour
         knowncardno = 0;
         myscore = 0;
         opscore = 0;
+        numberOpponentWinningHands = 0;
         for (int i = 0; i < 14; i++)
         {
             resultNo[i] = 0;
@@ -244,6 +251,7 @@ public class cardcontroller : MonoBehaviour
 
     }
     #endregion
+
     //get card number or symbol method or set result number
     #region
     public int getCardNumber(int a)
@@ -275,6 +283,7 @@ public class cardcontroller : MonoBehaviour
         else { resultNo[a % 13]--; }
     }
     #endregion
+
     //buttons
     #region
     public void NextCard() {
@@ -444,8 +453,7 @@ public class cardcontroller : MonoBehaviour
         errorcanvas2.SetActive(false);
     }
     #endregion //buttons
-
-   
+ 
     // calculation methods
     #region
     public int Computation(int a, int b)
@@ -785,6 +793,7 @@ public class cardcontroller : MonoBehaviour
         return k2;
     }           //1
     #endregion
+
     // hand scoring version3 my and op
     #region
     public int myscoreStraightflush()
@@ -822,35 +831,16 @@ public class cardcontroller : MonoBehaviour
                 if (score > 100000000) break;
             }
         }
-        for (int i = 2; i >= 0; i--)
+        if (score < 100000000)
         {
-            if (cardnumber[i + 2] == cardnumber[i + 1] + 1 && cardnumber[i + 3] == cardnumber[i + 1] + 2 && cardnumber[i + 4] == cardnumber[i + 1] + 3 && score < 100000000)
+            for (int n = 0; n < 4; n++)
             {
-                for(int m=0; m < 3; m++)
+                if (cardnumber.Contains(1 + n * 13) && cardnumber.Contains(10 + n * 13) && cardnumber.Contains(11 + n * 13) && cardnumber.Contains(12 + n * 13) && cardnumber.Contains(13 + n * 13))
                 {
-                    if (cardnumber[i + 1] == cardnumber[m] + 9 )
-                    {
-                        for (int k = 0; k < 4; k++)
-                        {
-                            resultSmblStraightFlush[k] = 0;
-                        }
-                        resultSmblStraightFlush[getSymbl(cardnumber[i + 1])]++;
-                        resultSmblStraightFlush[getSymbl(cardnumber[m])]++;
-                        for (int j = 0; j < 4; j++)
-                        {
-                            // Debug.Log("i" + i + "j" + j+"symbl"+resultSmblStraightFlush[j]);
-                            if (resultSmblStraightFlush[j] == 2)
-                            {
-                                score += 800000000;
-                                score += getCardNumber(cardnumber[i + 4]) * 1000000;
-                                break;
-                            }
-                        }
-                   
-                    }
-                    if (score > 100000000) break;
+                    score += 800000000;
+                    score += 14 * 1000000;
+                    break;
                 }
-                if (score > 100000000) break;
             }
         }
         return score;
@@ -1073,74 +1063,20 @@ public class cardcontroller : MonoBehaviour
                 if (score > 100000000) break;
             }
         }
-        for (int i = 4; i >= 2; i--)
+        if (score < 100000000)
         {
-            if (cardnumber[i + 2] == cardnumber[i + 1] + 1 && cardnumber[i + 3] == cardnumber[i + 1] + 2 && cardnumber[i + 4] == cardnumber[i + 1] + 3 && score < 100000000)
+            for (int n = 0; n < 4; n++)
             {
-                for (int m = 0; m < 3; m++)
+                if (cardnumber.Contains(1 + n * 13) && cardnumber.Contains(10 + n * 13) && cardnumber.Contains(11 + n * 13) && cardnumber.Contains(12 + n * 13) && cardnumber.Contains(13 + n * 13))
                 {
-                    if (cardnumber[i + 1] == cardnumber[m] + 9)
-                    {
-                        for (int k = 0; k < 4; k++)
-                        {
-                            resultSmblStraightFlush[k] = 0;
-                        }
-                        resultSmblStraightFlush[getSymbl(cardnumber[i + 1])]++;
-                        resultSmblStraightFlush[getSymbl(cardnumber[m])]++;
-                        for (int j = 0; j < 4; j++)
-                        {
-                            // Debug.Log("i" + i + "j" + j+"symbl"+resultSmblStraightFlush[j]);
-                            if (resultSmblStraightFlush[j] == 2)
-                            {
-                                score += 800000000;
-                                score += getCardNumber(cardnumber[i + 4]) * 1000000;
-                                break;
-                            }
-                        }
-
-                    }
-                    if (score > 100000000) break;
+                    score += 800000000;
+                    score += 14 * 1000000;
+                    break;
                 }
-                if (score > 100000000) break;
             }
         }
         return score;
     }
-    /*public int opscoreStraightflush()
-    {
-        int score = 0;
-        int[] cardnumber = new int[9];
-        int[] resultSmblStraightFlush = new int[4];
-
-        for (int i = 2; i < 9; i++)
-        {
-            cardnumber[i] = card[i];
-        }
-        Array.Sort(cardnumber);
-        for (int i = 4; i >= 2; i--)
-        {
-            if (cardnumber[i + 1] == cardnumber[i] + 1 && cardnumber[i + 2] == cardnumber[i] + 2 && cardnumber[i + 3] == cardnumber[i] + 3 && cardnumber[i + 4] == cardnumber[i] + 4)
-            {
-                for (int k = 0; k < 4; k++)
-                {
-                    resultSmblStraightFlush[k] = 0;
-                }
-                resultSmblStraightFlush[getSymbl(cardnumber[i])]++;
-                resultSmblStraightFlush[getSymbl(cardnumber[i + 4])]++;
-                for (int j = 0; j < 4; j++)
-                { Debug.Log(resultSmblStraightFlush[j]);
-                    if (resultSmblStraightFlush[j] == 2)
-                    {
-                        score += 800000000;
-                        score += getCardNumber(cardnumber[i + 4]) * 1000000;
-                        break;
-                    }
-                }
-                if (score > 100000000) break;
-            }
-        }
-        return score;
-    }*/
     public int opscoreFour()
     {
         int score = 0;
@@ -1325,7 +1261,9 @@ public class cardcontroller : MonoBehaviour
         return score;
     }
     #endregion
-  
+
+    //my hand score and opponent hand score
+    #region
     public int myhandscore()
     {
         if (myscoreStraightflush()  > 100000000) return myscoreStraightflush();
@@ -1350,6 +1288,8 @@ public class cardcontroller : MonoBehaviour
         else if (opscorePair()      > 100000000) return opscorePair();
         else                                     return opscoreHighcard();
     }
+    #endregion
+
     public void Calculate()
     {
         ClearMemory();
@@ -1403,7 +1343,7 @@ public class cardcontroller : MonoBehaviour
 
                             opscore = 0;                                            //get opponent hand score
                             opscore = ophandscore();                                //compare with my hand score
-                            if (opscore > myscore) { numberOpponentWinningHands++; Debug.Log(opscore+"i"+i+"j"+j); }
+                            if (opscore > myscore) numberOpponentWinningHands++;
 
                             resetResultNumber(j);
                             card[8] = 0;
@@ -1419,4 +1359,3 @@ public class cardcontroller : MonoBehaviour
         Debug.Log(numberOpponentWinningHands);
     }
 }
-
