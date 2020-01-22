@@ -29,6 +29,8 @@ public class cardcontroller : MonoBehaviour
     public GameObject optieChance;
     public GameObject oplosingChance;
     public Sprite[] sprites;
+    public Text playernumbertext;
+    public Text[] prefloptexts;
 
     Text atext;                          // initial text also used after input
     Text btext;                          // text after input 
@@ -39,12 +41,15 @@ public class cardcontroller : MonoBehaviour
     Sprite asprite;                      //initial sprite
     int[] card =new int[9];              //check which cards are used     ace of spade is 1, 2 of spade is 2,,,, 3 of diamond is (3+13)=16,,,,
     int[] resultNo =new int[15];         // (1 is resultNo[1], will use for 12345 srtaight) , 2 is resultNo[2],,,13 is resultNo[13],1is also resultNo[14], 
-    int[] resultSmbl =new int[4];        //0 is Spades, 1 is Diamonds, 2 is Clubs, 3 is Hearts 
+    int[] resultSmbl =new int[4];        //0 is Spades, 1 is Diamonds, 2 is Clubs, 3 is Hearts
+    int[] myhandcount = new int[9];      //number of each hand
     int cardno;                          //number of card hand1 is 1, hand2 is 2, board1 is 3,,,,,opponent1 is 7, opponent2 is 8 
     int myscore =0;                      //scoring my hand for comparison ex.pair is 100000
     int opscore =0;                      //same but for opponent
     int numberOpponentWinningHands = 0;  //number of hands the opponent won
     int numberOfDraws = 0;               //number of smae hands
+    int playerNumber = 2;                //player number
+    
     #endregion
 
     // initialize and update
@@ -114,9 +119,10 @@ public class cardcontroller : MonoBehaviour
         errorcanvas.SetActive(false);
         errorcanvas2.SetActive(false);
         mainresult.SetActive(false);
+        playernumbertext.text = playerNumber.ToString();
     }
     #endregion]
-    
+
     //things with setting card to card number and symbol and reseting results 
     #region
     public void PutinMemory()
@@ -247,6 +253,10 @@ public class cardcontroller : MonoBehaviour
         opscore = 0;
         numberOfDraws = 0;
         numberOpponentWinningHands = 0;
+        for (int i = 0; i < 9; i++)
+        {
+            myhandcount[i] = 0;
+        }
         for (int i = 0; i < 14; i++)
         {
             resultNo[i] = 0;
@@ -311,6 +321,18 @@ public class cardcontroller : MonoBehaviour
         else if (a % 13 == 1) { resultNo[14]--; resultNo[1]--; }
         else { resultNo[a % 13]--; }
     }
+    public void setSymblandNumber(int a,int b)
+    {
+        setResultNumber(a);
+        card[b] = a;
+        resultSmbl[getSymbl(a)]++;
+    }
+    public void resetSymblandNumber(int a,int b)
+    {
+        resetResultNumber(a);
+        card[b] = 0;
+        resultSmbl[getSymbl(a)]--;
+    }
     #endregion
 
     //buttons
@@ -333,8 +355,17 @@ public class cardcontroller : MonoBehaviour
             rectTransformc.localPosition = rectTransformp.localPosition;
 
         }
-    }    
+    }
+    public void clickUp()
+    {
+        if (playerNumber < 8) { playerNumber++; playernumbertext.text = playerNumber.ToString(); }
 
+    }
+    public void clickDown()
+    {
+        if (playerNumber > 2) { playerNumber--; playernumbertext.text = playerNumber.ToString(); }
+
+    }
     public void Spade()
     {
         aimage = clickedGameObject.GetComponentInChildren<Image>();
@@ -1318,79 +1349,100 @@ public class cardcontroller : MonoBehaviour
 
     //put in main result screen
     #region
+    
     public void setMainResult()
     {
         double opwinhand = numberOpponentWinningHands;
         double draws = numberOfDraws;
-        double ans;
+        double mydraw;
+        double mywin;
+        double mylose;
         Text text;
         if (countCardsinPlay() == 7) //(52-7)C2=990 
         {  
             //my winning chance
-            ans = (990 - opwinhand) / 9.9;
+            mywin = (990 - opwinhand - draws) / 990;
+            mywin = Math.Pow(mywin, (playerNumber - 1))*100;
             text = mywinningChance.GetComponent<Text>();
-            text.text = ans.ToString("f3") + "%";
+            text.text = mywin.ToString("f3") + "%";
             text = oplosingChance.GetComponent<Text>();
-            text.text = ans.ToString("f3") + "%";
+            text.text = mywin.ToString("f3") + "%";
             //tie
-            ans = draws / 9.9;
+            mydraw = draws / 990;
+            mydraw = Math.Pow(mydraw, (playerNumber - 1))*100;
             text = mytieChance.GetComponent<Text>();
-            text.text = ans.ToString("f3") + "%";
+            text.text = mydraw.ToString("f3") + "%";
             text = optieChance.GetComponent<Text>();
-            text.text = ans.ToString("f3") + "%";
+            text.text = mydraw.ToString("f3") + "%";
             //my losing chance
-            ans = opwinhand / 9.9;
+            mylose = 100 - mywin - mydraw;
             text = mylosingChance.GetComponent<Text>();
-            text.text = ans.ToString("f3") + "%";
+            text.text = mylose.ToString("f3") + "%";
             text = opwinningChance.GetComponent<Text>();
-            text.text = ans.ToString("f3") + "%";
+            text.text = mylose.ToString("f3") + "%";
         }
         else if (countCardsinPlay() == 6) //(52-6)C3=15180
         {
             //my winning chance
-            ans = (15180 - opwinhand) / 151.8;
+            mywin = (15180 - opwinhand - draws) / 15180;
+            mywin = Math.Pow(mywin, (playerNumber - 1))*100;
             text = mywinningChance.GetComponent<Text>();
-            text.text = ans.ToString("f3") + "%";
+            text.text = mywin.ToString("f3") + "%";
             text = oplosingChance.GetComponent<Text>();
-            text.text = ans.ToString("f3") + "%";
+            text.text = mywin.ToString("f3") + "%";
             //tie
-            ans = draws / 151.8;
+            mydraw = draws / 15180;
+            mydraw = Math.Pow(mydraw, (playerNumber - 1))*100;
             text = mytieChance.GetComponent<Text>();
-            text.text = ans.ToString("f3") + "%";
+            text.text = mydraw.ToString("f3") + "%";
             text = optieChance.GetComponent<Text>();
-            text.text = ans.ToString("f3") + "%";
+            text.text = mydraw.ToString("f3") + "%";
             //my losing chance
-            ans = opwinhand / 151.8;
+            mylose = 100 - mywin - mydraw;
             text = mylosingChance.GetComponent<Text>();
-            text.text = ans.ToString("f3") + "%";
+            text.text = mylose.ToString("f3") + "%";
             text = opwinningChance.GetComponent<Text>();
-            text.text = ans.ToString("f3") + "%";
+            text.text = mylose.ToString("f3") + "%";
         }
         else if (countCardsinPlay() == 5) //(52-5)C4=178,365 
         {
             //my winning chance
-            ans = (178365 - opwinhand) / 1783.65;
+            mywin = (178365 - opwinhand - draws) / 178365;
+            mywin = Math.Pow(mywin, (playerNumber - 1))*100;
             text = mywinningChance.GetComponent<Text>();
-            text.text = ans.ToString("f3") + "%";
+            text.text = mywin.ToString("f3") + "%";
             text = oplosingChance.GetComponent<Text>();
-            text.text = ans.ToString("f3") + "%";
+            text.text = mywin.ToString("f3") + "%";
             //tie
-            ans = draws / 1783.65;
+            mydraw = draws / 178365;
+            mydraw = Math.Pow(mydraw, (playerNumber - 1))*100;
             text = mytieChance.GetComponent<Text>();
-            text.text = ans.ToString("f3") + "%";
+            text.text = mydraw.ToString("f3") + "%";
             text = optieChance.GetComponent<Text>();
-            text.text = ans.ToString("f3") + "%";
+            text.text = mydraw.ToString("f3") + "%";
             //my losing chance
-            ans = opwinhand / 1783.65;
+            mylose = 100 - mywin - mydraw;
             text = mylosingChance.GetComponent<Text>();
-            text.text = ans.ToString("f3") + "%";
+            text.text = mylose.ToString("f3") + "%";
             text = opwinningChance.GetComponent<Text>();
-            text.text = ans.ToString("f3") + "%";
+            text.text = mylose.ToString("f3") + "%";
         }
+        canvas.SetActive(false);
+        mainresult.SetActive(true);
+    }
+    public void setResultpreflop()
+    {
+        for(int i = 0; i < 9; i++)
+        {
+            prefloptexts[2*i].text = myhandcount[8 - i].ToString();
+            prefloptexts[2 * i + 1].text = (myhandcount[8 - i] / 21187.6).ToString("f3")+"%";
+        }
+        canvas.SetActive(false);
+        mainresult.SetActive(true);
     }
     #endregion
 
-    //calculation after river aka 5 cards on board, turn aka 4, flop aka 3
+    //calculation after river aka 5 cards on board, turn aka 4, flop aka 3 , preflop aka 2cards
     #region
     public void calculateAfterRiver()
     {
@@ -1484,7 +1536,14 @@ public class cardcontroller : MonoBehaviour
             }
         }
     }
-
+    public void countmyhands()
+    {
+        myscore = myhandscore();
+        for(int i = 8; i >= 0; i--)
+        {
+            if (myscore > i * 100000000) { myhandcount[i]++; break; }
+        }                 
+    }
     #endregion
 
     //error check for input
@@ -1514,6 +1573,9 @@ public class cardcontroller : MonoBehaviour
             if (cardno == 4) { clickedGameObject = board3; }
             if (cardno == 5) { clickedGameObject = board4; }
             if (cardno == 6) { clickedGameObject = board5; }
+
+            bimage = clickedGameObject.GetComponentInChildren<Image>();
+            btext = clickedGameObject.GetComponentInChildren<Text>();
 
             if (bimage.sprite == sprites[0] && btext.text != "-")
             {
@@ -1578,12 +1640,58 @@ public class cardcontroller : MonoBehaviour
                         resultSmbl[getSymbl(p)]--;
                     }
                 }
+            }      
+            else if (countCardsinPlay()==2) 
+            {
+                for(int a = 1; a <= 52; a++)
+                {
+                    if (a != card[0] && a != card[1])
+                    {
+                        setSymblandNumber(a, 6);
+                        for (int b = a + 1; b <= 52; b++)
+                        {
+                            if (b != card[0] && b != card[1])
+                            {
+                                setSymblandNumber(b, 6);
+                                for (int c = b + 1; c <= 52; c++)
+                                {
+                                    if (c != card[0] && c != card[1])
+                                    {
+                                        setSymblandNumber(c, 6);
+                                        for (int d = c + 1; c <= 52; d++)
+                                        {
+                                            if (d != card[0] && d != card[1])
+                                            {
+                                                setSymblandNumber(d, 6);
+                                                for (int e = d + 1; e <= 52; e++)
+                                                {
+                                                    if (e != card[0] && e != card[1])
+                                                    {
+                                                        setSymblandNumber(e, 6);
+
+                                                        countmyhands();
+
+                                                        resetSymblandNumber(e, 6);
+                                                    }
+                                                }
+                                                resetSymblandNumber(d, 6);
+                                            }
+                                        }
+                                        resetSymblandNumber(c, 6);
+                                    }
+                                }
+                                resetSymblandNumber(b, 6);
+                            }
+                        }
+                        resetSymblandNumber(a, 6);
+                    }
+                }
+                setResultpreflop();
             }
             Debug.Log("number of opponent winning hand " + numberOpponentWinningHands);
-            canvas.SetActive(false);
-            mainresult.SetActive(true);
             setMainResult();
         }
     }
 }
+
 
