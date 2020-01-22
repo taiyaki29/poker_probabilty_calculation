@@ -1648,7 +1648,13 @@ public class cardcontroller : MonoBehaviour
                     }
                 }
                 setMainResult();
+                clickedGameObject = board4;
             }      
+            else if (countCardsinPlay() == 4 || countCardsinPlay() == 3 || countCardsinPlay() == 1 )
+            {
+                canvas.SetActive(false);
+                errorcanvas2.SetActive(true);
+            }
             else if (countCardsinPlay()==2) 
             {
                 for(int a = 1; a <= 52; a++)
@@ -1695,6 +1701,7 @@ public class cardcontroller : MonoBehaviour
                     }
                 }
                 setResultpreflop();
+                clickedGameObject = board1;
             }
             Debug.Log("number of opponent winning hand " + numberOpponentWinningHands);
             
