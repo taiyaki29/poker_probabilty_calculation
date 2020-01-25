@@ -32,25 +32,44 @@ public class cardcontroller : MonoBehaviour
     public Sprite[] sprites;
     public Text playernumbertext;
     public Text[] prefloptexts;
+    public ParticleSystem psWhite;
+    public ParticleSystem psRed;
+    public ParticleSystem psBlue;
+    public ParticleSystem psGreen; 
 
-    Text atext;                          // initial text also used after input
-    Text btext;                          // text after input 
-    Image aimage;                        //initial image also used after inout
-    Image bimage;                        //image after input
-    Image current_image;                 //for moving to next card
-    Text curret_text;                    //for moving to next card
-    Sprite asprite;                      //initial sprite
-    int[] card =new int[9];              //check which cards are used     ace of spade is 1, 2 of spade is 2,,,, 3 of diamond is (3+13)=16,,,,
-    int[] resultNo =new int[15];         // (1 is resultNo[1], will use for 12345 srtaight) , 2 is resultNo[2],,,13 is resultNo[13],1is also resultNo[14], 
-    int[] resultSmbl =new int[4];        //0 is Spades, 1 is Diamonds, 2 is Clubs, 3 is Hearts
-    int[] myhandcount = new int[9];      //number of each hand
-    int cardno;                          //number of card hand1 is 1, hand2 is 2, board1 is 3,,,,,opponent1 is 7, opponent2 is 8 
-    int myscore =0;                      //scoring my hand for comparison ex.pair is 100000
-    int opscore =0;                      //same but for opponent
-    int numberOpponentWinningHands = 0;  //number of hands the opponent won
-    int numberOfDraws = 0;               //number of smae hands
-    int playerNumber = 2;                //player number
+    Text atext;                            // initial text also used after input
+    Text btext;                            // text after input 
+    Image aimage;                          //initial image also used after inout
+    Image bimage;                          //image after input
+    Image current_image;                   //for moving to next card
+    Text curret_text;                      //for moving to next card
+    Sprite asprite;                        //initial sprite
+    int[] card =new int[9];                //check which cards are used     ace of spade is 1, 2 of spade is 2,,,, 3 of diamond is (3+13)=16,,,,
+    int[] resultNo =new int[15];           // (1 is resultNo[1], will use for 12345 srtaight) , 2 is resultNo[2],,,13 is resultNo[13],1is also resultNo[14], 
+    int[] resultSmbl =new int[4];          //0 is Spades, 1 is Diamonds, 2 is Clubs, 3 is Hearts
+    int[] myhandcount = new int[9];        //number of each hand
+    int cardno;                            //number of card hand1 is 1, hand2 is 2, board1 is 3,,,,,opponent1 is 7, opponent2 is 8 
+    int myscore =0;                        //scoring my hand for comparison ex.pair is 100000
+    int opscore =0;                        //same but for opponent
+    int numberOpponentWinningHands = 0;    //number of hands the opponent won
+    int numberOfDraws = 0;                 //number of smae hands
+    int playerNumber = 2;                  //player number
+    int smallercardnumber;                 //smaller card number preflop
+    int biggercardnumber;                  //bigger card number preflop
+    int hand1number;                       //number of smaller card number preflop
+    int hand2number;                       //number of bigger card number preflop
+    int hand1symbol;                       //symbol of smaller card number preflop
+    int hand2symbol;                       //symbol of smaller card number preflop
+    int handsymbol;                        //symbol of cards in hand preflop 0 is for same symbol, 1is for different symbol
+    ParticleSystem.EmissionModule emWhite; //poker chip particles
+    ParticleSystem.EmissionModule emRed;
+    ParticleSystem.EmissionModule emBlue;
+    ParticleSystem.EmissionModule emGreen;
+    #endregion
     
+    //memorized answer for preflop
+    #region
+    int[,,,] possibleHands =  { { { { 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 0, 769230, 746928, 381436, 111908, 41562, 49632, 17848, 216 } }, { { 391620, 919632, 433452, 117678, 92802, 137306, 21450, 2668, 2152 }, { 423720, 968576, 444440, 119482, 96646, 41518, 21450, 2668, 260 } }, { { 387045, 916776, 433452, 117438, 100233, 137262, 21690, 2668, 2196 }, { 418770, 965568, 444440, 119242, 104604, 41474, 21690, 2668, 304 } }, { { 382470, 913920, 433452, 117198, 107664, 137218, 21930, 2668, 2240 }, { 413820, 962560, 444440, 119002, 112562, 41430, 21930, 2668, 348 } }, { { 377895, 911064, 433452, 116958, 115095, 138209, 22170, 2668, 1249 }, { 408870, 959552, 444440, 118762, 120520, 41431, 22170, 2668, 347 } }, { { 392535, 928200, 436095, 117279, 80115, 139155, 22410, 2668, 303 }, { 424710, 977600, 447150, 119094, 83350, 41431, 22410, 2668, 347 } }, { { 387960, 925344, 436095, 117039, 87546, 139111, 22650, 2668, 347 }, { 419760, 974592, 447150, 118854, 91308, 41431, 22650, 2668, 347 } }, { { 387960, 925344, 436095, 116799, 87546, 139111, 22890, 2668, 347 }, { 419760, 974592, 447150, 118614, 91308, 41431, 22890, 2668, 347 } }, { { 387045, 925344, 436095, 116559, 88461, 139110, 23130, 2668, 348 }, { 418770, 974592, 447150, 118374, 92298, 41430, 23130, 2668, 348 } }, { { 391620, 928200, 436095, 116319, 81030, 139154, 23370, 2668, 304 }, { 423720, 977600, 447150, 118134, 84340, 41474, 23370, 2668, 304 } }, { { 396195, 931056, 436095, 116079, 73599, 139198, 23610, 2668, 260 }, { 428670, 980608, 447150, 117894, 76382, 41518, 23610, 2668, 260 } }, { { 400770, 933912, 436095, 115839, 66168, 139242, 23850, 2668, 216 }, { 433620, 983616, 447150, 117654, 68424, 41562, 23850, 2668, 216 } }, { { 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 438570, 986624, 447150, 117414, 60466, 41562, 24090, 2668, 216 } } }, { { { 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 423720, 968576, 444440, 119482, 96646, 41518, 21450, 2668, 260 } }, { { 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 0, 763290, 745416, 373362, 119866, 41474, 57200, 17848, 304 } }, { { 373320, 899640, 430809, 116619, 134298, 136272, 21948, 2668, 3186 }, { 403920, 947520, 441730, 118412, 140784, 41430, 21948, 2668, 348 } }, { { 368745, 896784, 430809, 116379, 141729, 136228, 22188, 2668, 3230 }, { 398970, 944512, 441730, 118172, 148742, 41386, 22188, 2668, 392 } }, { { 364170, 893928, 430809, 116139, 149160, 137219, 22428, 2668, 2239 }, { 394020, 941504, 441730, 117932, 156700, 41387, 22428, 2668, 391 } }, { { 378810, 911064, 433452, 116460, 114180, 138165, 22668, 2668, 1293 }, { 409860, 959552, 444440, 118264, 119530, 41387, 22668, 2668, 391 } }, { { 387960, 925344, 436095, 116781, 87546, 139111, 22908, 2668, 347 }, { 419760, 974592, 447150, 118596, 91308, 41387, 22908, 2668, 391 } }, { { 383385, 922488, 436095, 116541, 94977, 139067, 23148, 2668, 391 }, { 414810, 971584, 447150, 118356, 99266, 41387, 23148, 2668, 391 } }, { { 382470, 922488, 436095, 116301, 95892, 139066, 23388, 2668, 392 }, { 413820, 971584, 447150, 118116, 100256, 41386, 23388, 2668, 392 } }, { { 387045, 925344, 436095, 116061, 88461, 139110, 23628, 2668, 348 }, { 418770, 974592, 447150, 117876, 92298, 41430, 23628, 2668, 348 } }, { { 391620, 928200, 436095, 115821, 81030, 139154, 23868, 2668, 304 }, { 423720, 977600, 447150, 117636, 84340, 41474, 23868, 2668, 304 } }, { { 396195, 931056, 436095, 115581, 73599, 139198, 24108, 2668, 260 }, { 428670, 980608, 447150, 117396, 76382, 41518, 24108, 2668, 260 } }, { { 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 433620, 983616, 447150, 117156, 68424, 41518, 24348, 2668, 260 } } }, { { { 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 418770, 965568, 444440, 119242, 104604, 41474, 21690, 2668, 304 } }, { { 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 403920, 947520, 441730, 118412, 140784, 41430, 21948, 2668, 348 } }, { { 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 0, 757350, 743904, 365336, 127824, 41386, 64720, 17848, 392 } }, { { 355020, 879648, 428166, 115560, 175794, 135238, 22446, 2668, 4220 }, { 384120, 926464, 439020, 117342, 184922, 41342, 22446, 2668, 436 } }, { { 350445, 876792, 428166, 115320, 183225, 136229, 22686, 2668, 3229 }, { 379170, 923456, 439020, 117102, 192880, 41343, 22686, 2668, 435 } }, { { 365085, 893928, 430809, 115641, 148245, 137175, 22926, 2668, 2283 }, { 395010, 941504, 441730, 117434, 155710, 41343, 22926, 2668, 435 } }, { { 374235, 908208, 433452, 115962, 121611, 138121, 23166, 2668, 1337 }, { 404910, 956544, 444440, 117766, 127488, 41343, 23166, 2668, 435 } }, { { 383385, 922488, 436095, 116283, 94977, 139067, 23406, 2668, 391 }, { 414810, 971584, 447150, 118098, 99266, 41343, 23406, 2668, 435 } }, { { 377895, 919632, 436095, 116043, 103323, 139022, 23646, 2668, 436 }, { 408870, 968576, 447150, 117858, 108214, 41342, 23646, 2668, 436 } }, { { 382470, 922488, 436095, 115803, 95892, 139066, 23886, 2668, 392 }, { 413820, 971584, 447150, 117618, 100256, 41386, 23886, 2668, 392 } }, { { 387045, 925344, 436095, 115563, 88461, 139110, 24126, 2668, 348 }, { 418770, 974592, 447150, 117378, 92298, 41430, 24126, 2668, 348 } }, { { 391620, 928200, 436095, 115323, 81030, 139154, 24366, 2668, 304 }, { 423720, 977600, 447150, 117138, 84340, 41474, 24366, 2668, 304 } }, { { 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 428670, 980608, 447150, 116898, 76382, 41474, 24606, 2668, 304 } } }, { { { 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 413820, 962560, 444440, 119002, 112562, 41430, 21930, 2668, 348 } }, { { 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 398970, 944512, 441730, 118172, 148742, 41386, 22188, 2668, 392 } }, { { 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 384120, 926464, 439020, 117342, 184922, 41342, 22446, 2668, 436 } }, { { 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 0, 751410, 742392, 357358, 135782, 41298, 72192, 17848, 480 } }, { { 336720, 859656, 425523, 114501, 217290, 135239, 22944, 2668, 4219 }, { 364320, 905408, 436310, 116272, 229060, 41299, 22944, 2668, 479 } }, { { 351360, 876792, 428166, 114822, 182310, 136185, 23184, 2668, 3273 }, { 380160, 923456, 439020, 116604, 191890, 41299, 23184, 2668, 479 } }, { { 360510, 891072, 430809, 115143, 155676, 137131, 23424, 2668, 2327 }, { 390060, 938496, 441730, 116936, 163668, 41299, 23424, 2668, 479 } }, { { 369660, 905352, 433452, 115464, 129042, 138077, 23664, 2668, 1381 }, { 399960, 953536, 444440, 117268, 135446, 41299, 23664, 2668, 479 } }, { { 377895, 919632, 436095, 115785, 103323, 139022, 23904, 2668, 436 }, { 408870, 968576, 447150, 117600, 108214, 41298, 23904, 2668, 480 } }, { { 377895, 919632, 436095, 115545, 103323, 139022, 24144, 2668, 436 }, { 408870, 968576, 447150, 117360, 108214, 41342, 24144, 2668, 436 } }, { { 382470, 922488, 436095, 115305, 95892, 139066, 24384, 2668, 392 }, { 413820, 971584, 447150, 117120, 100256, 41386, 24384, 2668, 392 } }, { { 387045, 925344, 436095, 115065, 88461, 139110, 24624, 2668, 348 }, { 418770, 974592, 447150, 116880, 92298, 41430, 24624, 2668, 348 } }, { { 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 423720, 977600, 447150, 116640, 84340, 41430, 24864, 2668, 348 } } }, { { { 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 408870, 959552, 444440, 118762, 120520, 41431, 22170, 2668, 347 } }, { { 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 394020, 941504, 441730, 117932, 156700, 41387, 22428, 2668, 391 } }, { { 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 379170, 923456, 439020, 117102, 192880, 41343, 22686, 2668, 435 } }, { { 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 364320, 905408, 436310, 116272, 229060, 41299, 22944, 2668, 479 } }, { { 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 0, 745470, 740880, 349428, 143740, 41300, 79616, 17848, 478 } }, { { 337635, 859656, 425523, 114003, 216375, 135240, 23442, 2668, 4218 }, { 365310, 905408, 436310, 115774, 228070, 41300, 23442, 2668, 478 } }, { { 346785, 873936, 428166, 114324, 189741, 136186, 23682, 2668, 3272 }, { 375210, 920448, 439020, 116106, 199848, 41300, 23682, 2668, 478 } }, { { 355935, 888216, 430809, 114645, 163107, 137132, 23922, 2668, 2326 }, { 385110, 935488, 441730, 116438, 171626, 41300, 23922, 2668, 478 } }, { { 364170, 902496, 433452, 114966, 137388, 138077, 24162, 2668, 1381 }, { 394020, 950528, 444440, 116770, 144394, 41299, 24162, 2668, 479 } }, { { 377895, 919632, 436095, 115287, 103323, 139067, 24402, 2668, 391 }, { 408870, 968576, 447150, 117102, 108214, 41343, 24402, 2668, 435 } }, { { 377895, 919632, 436095, 115047, 103323, 139067, 24642, 2668, 391 }, { 408870, 968576, 447150, 116862, 108214, 41387, 24642, 2668, 391 } }, { { 382470, 922488, 436095, 114807, 95892, 139111, 24882, 2668, 347 }, { 413820, 971584, 447150, 116622, 100256, 41431, 24882, 2668, 347 } }, { { 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 418770, 974592, 447150, 116382, 92298, 41431, 25122, 2668, 347 } } }, { { { 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 424710, 977600, 447150, 119094, 83350, 41431, 22410, 2668, 347 } }, { { 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 409860, 959552, 444440, 118264, 119530, 41387, 22668, 2668, 391 } }, { { 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 395010, 941504, 441730, 117434, 155710, 41343, 22926, 2668, 435 } }, { { 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 380160, 923456, 439020, 116604, 191890, 41299, 23184, 2668, 479 } }, { { 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 365310, 905408, 436310, 115774, 228070, 41300, 23442, 2668, 478 } }, { { 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 0, 746460, 740880, 342052, 142750, 41300, 86992, 17848, 478 } }, { { 338550, 859656, 425523, 113505, 215460, 135240, 23940, 2668, 4218 }, { 366300, 905408, 436310, 115276, 227080, 41300, 23940, 2668, 478 } }, { { 347700, 873936, 428166, 113826, 188826, 136186, 24180, 2668, 3272 }, { 376200, 920448, 439020, 115608, 198858, 41300, 24180, 2668, 478 } }, { { 355935, 888216, 430809, 114147, 163107, 137131, 24420, 2668, 2327 }, { 385110, 935488, 441730, 115940, 171626, 41299, 24420, 2668, 479 } }, { { 369660, 905352, 433452, 114468, 129042, 138121, 24660, 2668, 1337 }, { 399960, 953536, 444440, 116272, 135446, 41343, 24660, 2668, 435 } }, { { 383385, 922488, 436095, 114789, 94977, 139111, 24900, 2668, 347 }, { 414810, 971584, 447150, 116604, 99266, 41387, 24900, 2668, 391 } }, { { 383385, 922488, 436095, 114549, 94977, 139111, 25140, 2668, 347 }, { 414810, 971584, 447150, 116364, 99266, 41431, 25140, 2668, 347 } }, { { 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 419760, 974592, 447150, 116124, 91308, 41431, 25380, 2668, 347 } } }, { { { 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 419760, 974592, 447150, 118854, 91308, 41431, 22650, 2668, 347 } }, { { 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 419760, 974592, 447150, 118596, 91308, 41387, 22908, 2668, 391 } }, { { 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 404910, 956544, 444440, 117766, 127488, 41343, 23166, 2668, 435 } }, { { 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 390060, 938496, 441730, 116936, 163668, 41299, 23424, 2668, 479 } }, { { 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 375210, 920448, 439020, 116106, 199848, 41300, 23682, 2668, 478 } }, { { 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 366300, 905408, 436310, 115276, 227080, 41300, 23940, 2668, 478 } }, { { 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 0, 746460, 740880, 334724, 142750, 41300, 94320, 17848, 478 } }, { { 338550, 859656, 425523, 113007, 215460, 135240, 24438, 2668, 4218 }, { 366300, 905408, 436310, 114778, 227080, 41300, 24438, 2668, 478 } }, { { 346785, 873936, 428166, 113328, 189741, 136185, 24678, 2668, 3273 }, { 375210, 920448, 439020, 115110, 199848, 41299, 24678, 2668, 479 } }, { { 360510, 891072, 430809, 113649, 155676, 137175, 24918, 2668, 2283 }, { 390060, 938496, 441730, 115442, 163668, 41343, 24918, 2668, 435 } }, { { 374235, 908208, 433452, 113970, 121611, 138165, 25158, 2668, 1293 }, { 404910, 956544, 444440, 115774, 127488, 41387, 25158, 2668, 391 } }, { { 387960, 925344, 436095, 114291, 87546, 139155, 25398, 2668, 303 }, { 419760, 974592, 447150, 116106, 91308, 41431, 25398, 2668, 347 } }, { { 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 419760, 974592, 447150, 115866, 91308, 41431, 25638, 2668, 347 } } }, { { { 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 419760, 974592, 447150, 118614, 91308, 41431, 22890, 2668, 347 } }, { { 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 414810, 971584, 447150, 118356, 99266, 41387, 23148, 2668, 391 } }, { { 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 414810, 971584, 447150, 118098, 99266, 41343, 23406, 2668, 435 } }, { { 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 399960, 953536, 444440, 117268, 135446, 41299, 23664, 2668, 479 } }, { { 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 385110, 935488, 441730, 116438, 171626, 41300, 23922, 2668, 478 } }, { { 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 376200, 920448, 439020, 115608, 198858, 41300, 24180, 2668, 478 } }, { { 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 366300, 905408, 436310, 114778, 227080, 41300, 24438, 2668, 478 } }, { { 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 0, 746460, 740880, 327444, 142750, 41300, 101600, 17848, 478 } }, { { 337635, 859656, 425523, 112509, 216375, 135239, 24936, 2668, 4219 }, { 365310, 905408, 436310, 114280, 228070, 41299, 24936, 2668, 479 } }, { { 351360, 876792, 428166, 112830, 182310, 136229, 25176, 2668, 3229 }, { 380160, 923456, 439020, 114612, 191890, 41343, 25176, 2668, 435 } }, { { 365085, 893928, 430809, 113151, 148245, 137219, 25416, 2668, 2239 }, { 395010, 941504, 441730, 114944, 155710, 41387, 25416, 2668, 391 } }, { { 378810, 911064, 433452, 113472, 114180, 138209, 25656, 2668, 1249 }, { 409860, 959552, 444440, 115276, 119530, 41431, 25656, 2668, 347 } }, { { 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 424710, 977600, 447150, 115608, 83350, 41431, 25896, 2668, 347 } } }, { { { 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 418770, 974592, 447150, 118374, 92298, 41430, 23130, 2668, 348 } }, { { 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 413820, 971584, 447150, 118116, 100256, 41386, 23388, 2668, 392 } }, { { 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 408870, 968576, 447150, 117858, 108214, 41342, 23646, 2668, 436 } }, { { 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 408870, 968576, 447150, 117600, 108214, 41298, 23904, 2668, 480 } }, { { 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 394020, 950528, 444440, 116770, 144394, 41299, 24162, 2668, 479 } }, { { 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 385110, 935488, 441730, 115940, 171626, 41299, 24420, 2668, 479 } }, { { 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 375210, 920448, 439020, 115110, 199848, 41299, 24678, 2668, 479 } }, { { 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 365310, 905408, 436310, 114280, 228070, 41299, 24936, 2668, 479 } }, { { 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 0, 745470, 740880, 320212, 143740, 41298, 108832, 17848, 480 } }, { { 336720, 859656, 425523, 112011, 217290, 135238, 25434, 2668, 4220 }, { 364320, 905408, 436310, 113782, 229060, 41342, 25434, 2668, 436 } }, { { 350445, 876792, 428166, 112332, 183225, 136228, 25674, 2668, 3230 }, { 379170, 923456, 439020, 114114, 192880, 41386, 25674, 2668, 392 } }, { { 364170, 893928, 430809, 112653, 149160, 137218, 25914, 2668, 2240 }, { 394020, 941504, 441730, 114446, 156700, 41430, 25914, 2668, 348 } }, { { 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 408870, 959552, 444440, 114778, 120520, 41430, 26154, 2668, 348 } } }, { { { 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 423720, 977600, 447150, 118134, 84340, 41474, 23370, 2668, 304 } }, { { 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 418770, 974592, 447150, 117876, 92298, 41430, 23628, 2668, 348 } }, { { 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 413820, 971584, 447150, 117618, 100256, 41386, 23886, 2668, 392 } }, { { 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 408870, 968576, 447150, 117360, 108214, 41342, 24144, 2668, 436 } }, { { 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 408870, 968576, 447150, 117102, 108214, 41343, 24402, 2668, 435 } }, { { 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 399960, 953536, 444440, 116272, 135446, 41343, 24660, 2668, 435 } }, { { 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 390060, 938496, 441730, 115442, 163668, 41343, 24918, 2668, 435 } }, { { 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 380160, 923456, 439020, 114612, 191890, 41343, 25176, 2668, 435 } }, { { 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 364320, 905408, 436310, 113782, 229060, 41342, 25434, 2668, 436 } }, { { 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 0, 751410, 742392, 313534, 135782, 41386, 116016, 17848, 392 } }, { { 355020, 879648, 428166, 112074, 175794, 136272, 25932, 2668, 3186 }, { 384120, 926464, 439020, 113856, 184922, 41430, 25932, 2668, 348 } }, { { 368745, 896784, 430809, 112395, 141729, 137262, 26172, 2668, 2196 }, { 398970, 944512, 441730, 114188, 148742, 41474, 26172, 2668, 304 } }, { { 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 413820, 962560, 444440, 114520, 112562, 41474, 26412, 2668, 304 } } }, { { { 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 428670, 980608, 447150, 117894, 76382, 41518, 23610, 2668, 260 } }, { { 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 423720, 977600, 447150, 117636, 84340, 41474, 23868, 2668, 304 } }, { { 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 418770, 974592, 447150, 117378, 92298, 41430, 24126, 2668, 348 } }, { { 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 413820, 971584, 447150, 117120, 100256, 41386, 24384, 2668, 392 } }, { { 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 408870, 968576, 447150, 116862, 108214, 41387, 24642, 2668, 391 } }, { { 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 414810, 971584, 447150, 116604, 99266, 41387, 24900, 2668, 391 } }, { { 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 404910, 956544, 444440, 115774, 127488, 41387, 25158, 2668, 391 } }, { { 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 395010, 941504, 441730, 114944, 155710, 41387, 25416, 2668, 391 } }, { { 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 379170, 923456, 439020, 114114, 192880, 41386, 25674, 2668, 392 } }, { { 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 384120, 926464, 439020, 113856, 184922, 41430, 25932, 2668, 348 } }, { { 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 0, 757350, 743904, 306904, 127824, 41474, 123152, 17848, 304 } }, { { 373320, 899640, 430809, 112137, 134298, 137306, 26430, 2668, 2152 }, { 403920, 947520, 441730, 113930, 140784, 41518, 26430, 2668, 260 } }, { { 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 418770, 965568, 444440, 114262, 104604, 41518, 26670, 2668, 260 } } }, { { { 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 433620, 983616, 447150, 117654, 68424, 41562, 23850, 2668, 216 } }, { { 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 428670, 980608, 447150, 117396, 76382, 41518, 24108, 2668, 260 } }, { { 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 423720, 977600, 447150, 117138, 84340, 41474, 24366, 2668, 304 } }, { { 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 418770, 974592, 447150, 116880, 92298, 41430, 24624, 2668, 348 } }, { { 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 413820, 971584, 447150, 116622, 100256, 41431, 24882, 2668, 347 } }, { { 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 414810, 971584, 447150, 116364, 99266, 41431, 25140, 2668, 347 } }, { { 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 419760, 974592, 447150, 116106, 91308, 41431, 25398, 2668, 347 } }, { { 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 409860, 959552, 444440, 115276, 119530, 41431, 25656, 2668, 347 } }, { { 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 394020, 941504, 441730, 114446, 156700, 41430, 25914, 2668, 348 } }, { { 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 398970, 944512, 441730, 114188, 148742, 41474, 26172, 2668, 304 } }, { { 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 403920, 947520, 441730, 113930, 140784, 41518, 26430, 2668, 260 } }, { { 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 0, 763290, 745416, 300322, 119866, 41562, 130240, 17848, 216 } }, { { 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 423720, 968576, 444440, 114004, 96646, 41562, 26928, 2668, 216 } } }, { { { 405345, 936768, 436095, 115599, 58737, 138296, 24090, 2668, 1162 }, { 438570, 986624, 447150, 117414, 60466, 41562, 24090, 2668, 216 } }, { { 400770, 933912, 436095, 115341, 66168, 138252, 24348, 2668, 1206 }, { 433620, 983616, 447150, 117156, 68424, 41518, 24348, 2668, 260 } }, { { 396195, 931056, 436095, 115083, 73599, 138208, 24606, 2668, 1250 }, { 428670, 980608, 447150, 116898, 76382, 41474, 24606, 2668, 304 } }, { { 391620, 928200, 436095, 114825, 81030, 138164, 24864, 2668, 1294 }, { 423720, 977600, 447150, 116640, 84340, 41430, 24864, 2668, 348 } }, { { 387045, 925344, 436095, 114567, 88461, 139155, 25122, 2668, 303 }, { 418770, 974592, 447150, 116382, 92298, 41431, 25122, 2668, 347 } }, { { 387960, 925344, 436095, 114309, 87546, 139111, 25380, 2668, 347 }, { 419760, 974592, 447150, 116124, 91308, 41431, 25380, 2668, 347 } }, { { 387960, 925344, 436095, 114051, 87546, 139111, 25638, 2668, 347 }, { 419760, 974592, 447150, 115866, 91308, 41431, 25638, 2668, 347 } }, { { 392535, 928200, 436095, 113793, 80115, 139155, 25896, 2668, 303 }, { 424710, 977600, 447150, 115608, 83350, 41431, 25896, 2668, 347 } }, { { 377895, 911064, 433452, 112974, 115095, 138164, 26154, 2668, 1294 }, { 408870, 959552, 444440, 114778, 120520, 41430, 26154, 2668, 348 } }, { { 382470, 913920, 433452, 112716, 107664, 138208, 26412, 2668, 1250 }, { 413820, 962560, 444440, 114520, 112562, 41474, 26412, 2668, 304 } }, { { 387045, 916776, 433452, 112458, 100233, 138252, 26670, 2668, 1206 }, { 418770, 965568, 444440, 114262, 104604, 41518, 26670, 2668, 260 } }, { { 391620, 919632, 433452, 112200, 92802, 138296, 26928, 2668, 1162 }, { 423720, 968576, 444440, 114004, 96646, 41562, 26928, 2668, 216 } }, { { 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 0, 769230, 746928, 293788, 111908, 41562, 137280, 17848, 216 } } } } ;  //possible hands for preflop 
     #endregion
 
     // initialize and update
@@ -123,6 +142,27 @@ public class cardcontroller : MonoBehaviour
         playernumbertext.text = playerNumber.ToString();
     }
     #endregion]
+
+    //particles
+    #region    
+    public void particleControl(double a)
+    {
+        emWhite = psWhite.emission;
+        emRed= psRed.emission;
+        emBlue = psBlue.emission;
+        emGreen = psGreen.emission;
+        object c = a;
+        float b = System.Convert.ToSingle(a);
+        if (b >= 50)
+        {
+            b /= 3;
+            emWhite.rateOverTime = new ParticleSystem.MinMaxCurve(b);
+            emRed.rateOverTime = new ParticleSystem.MinMaxCurve(b);
+            emBlue.rateOverTime = new ParticleSystem.MinMaxCurve(b);
+            emGreen.rateOverTime = new ParticleSystem.MinMaxCurve(b);
+        }
+    }
+    #endregion
 
     //things with setting card to card number and symbol and reseting results 
     #region
@@ -258,7 +298,7 @@ public class cardcontroller : MonoBehaviour
         {
             myhandcount[i] = 0;
         }
-        for (int i = 0; i < 14; i++)
+        for (int i = 0; i < 15; i++)
         {
             resultNo[i] = 0;
         }
@@ -333,6 +373,17 @@ public class cardcontroller : MonoBehaviour
         resetResultNumber(a);
         card[b] = 0;
         resultSmbl[getSymbl(a)]--;
+    }
+    public void gethandNumberandSymbolForPreflop()
+    {
+        smallercardnumber = min(card[0], card[1]);
+        biggercardnumber = max(card[0], card[1]);
+        hand1number = getCardNumber(smallercardnumber);
+        hand2number = getCardNumber(biggercardnumber);
+        hand1symbol = getSymbl(card[0]);
+        hand2symbol = getSymbl(card[1]);
+        if (hand1symbol == hand2symbol) handsymbol = 0;
+        else handsymbol = 1;
     }
     #endregion
 
@@ -873,44 +924,43 @@ public class cardcontroller : MonoBehaviour
         int[] cardnumber = new int[7];
         int[] resultSmblStraightFlush = new int[4];
 
-        for(int i = 0; i < 7; i++)
+        for(int i = 0; i < 7; i++) //01 23456
         {
             cardnumber[i] = card[i];
         }
         Array.Sort(cardnumber);
-
-        for(int i = 2; i >= 0; i--)
+        for (int n = 0; n < 4; n++)
         {
-            if (cardnumber[i + 1] == cardnumber[i] + 1 && cardnumber[i + 2] == cardnumber[i] + 2 && cardnumber[i + 3] == cardnumber[i] + 3 && cardnumber[i + 4] == cardnumber[i] + 4)
+            if (cardnumber.Contains(1 + n * 13) && cardnumber.Contains(10 + n * 13) && cardnumber.Contains(11 + n * 13) && cardnumber.Contains(12 + n * 13) && cardnumber.Contains(13 + n * 13))
             {
-                for(int k = 0; k < 4; k++)
-                {
-                    resultSmblStraightFlush[k] = 0;
-                }
-                resultSmblStraightFlush[getSymbl(cardnumber[i])]++;
-                resultSmblStraightFlush[getSymbl(cardnumber[i + 4])]++;
-                for (int j = 0; j < 4; j++)
-                {
-                   // Debug.Log("i" + i + "j" + j+"symbl"+resultSmblStraightFlush[j]);
-                    if (resultSmblStraightFlush[j] == 2)
-                    {
-                        score += 800000000;
-                        score += getCardNumber(cardnumber[i + 4]) * 1000000;
-                        break;
-                    }
-                }
-                if (score > 100000000) break;
+                score += 800000000;
+                score += 14 * 1000000;
+                break;
             }
         }
         if (score < 100000000)
         {
-            for (int n = 0; n < 4; n++)
+            for (int i = 2; i >= 0; i--)
             {
-                if (cardnumber.Contains(1 + n * 13) && cardnumber.Contains(10 + n * 13) && cardnumber.Contains(11 + n * 13) && cardnumber.Contains(12 + n * 13) && cardnumber.Contains(13 + n * 13))
+                if (cardnumber[i + 1] == cardnumber[i] + 1 && cardnumber[i + 2] == cardnumber[i] + 2 && cardnumber[i + 3] == cardnumber[i] + 3 && cardnumber[i + 4] == cardnumber[i] + 4)
                 {
-                    score += 800000000;
-                    score += 14 * 1000000;
-                    break;
+                    for (int k = 0; k < 4; k++)
+                    {
+                        resultSmblStraightFlush[k] = 0;
+                    }
+                    resultSmblStraightFlush[getSymbl(cardnumber[i])]++;
+                    resultSmblStraightFlush[getSymbl(cardnumber[i + 4])]++;
+                    for (int j = 0; j < 4; j++)
+                    {
+                        // Debug.Log("i" + i + "j" + j+"symbl"+resultSmblStraightFlush[j]);
+                        if (resultSmblStraightFlush[j] == 2)
+                        {
+                            score += 800000000;
+                            score += getCardNumber(cardnumber[i + 4]) * 1000000;
+                            break;
+                        }
+                    }
+                    if (score > 100000000) break;
                 }
             }
         }
@@ -1101,44 +1151,43 @@ public class cardcontroller : MonoBehaviour
         int[] cardnumber = new int[9];
         int[] resultSmblStraightFlush = new int[4];
 
-        for (int i = 2; i < 9; i++)
+        for (int i = 2; i < 9; i++) //23456 78
         {
             cardnumber[i] = card[i];
         }
         Array.Sort(cardnumber);
-
-        for (int i = 4; i >= 2; i--)
+        for (int n = 0; n < 4; n++)
         {
-            if (cardnumber[i + 1] == cardnumber[i] + 1 && cardnumber[i + 2] == cardnumber[i] + 2 && cardnumber[i + 3] == cardnumber[i] + 3 && cardnumber[i + 4] == cardnumber[i] + 4)
+            if (cardnumber.Contains(1 + n * 13) && cardnumber.Contains(10 + n * 13) && cardnumber.Contains(11 + n * 13) && cardnumber.Contains(12 + n * 13) && cardnumber.Contains(13 + n * 13))
             {
-                for (int k = 0; k < 4; k++)
-                {
-                    resultSmblStraightFlush[k] = 0;
-                }
-                resultSmblStraightFlush[getSymbl(cardnumber[i])]++;
-                resultSmblStraightFlush[getSymbl(cardnumber[i + 4])]++;
-                for (int j = 0; j < 4; j++)
-                {
-                    // Debug.Log("i" + i + "j" + j+"symbl"+resultSmblStraightFlush[j]);
-                    if (resultSmblStraightFlush[j] == 2)
-                    {
-                        score += 800000000;
-                        score += getCardNumber(cardnumber[i + 4]) * 1000000;
-                        break;
-                    }
-                }
-                if (score > 100000000) break;
+                score += 800000000;
+                score += 14 * 1000000;
+                break;
             }
-        }
+        }       
         if (score < 100000000)
         {
-            for (int n = 0; n < 4; n++)
+            for (int i = 4; i >= 2; i--)
             {
-                if (cardnumber.Contains(1 + n * 13) && cardnumber.Contains(10 + n * 13) && cardnumber.Contains(11 + n * 13) && cardnumber.Contains(12 + n * 13) && cardnumber.Contains(13 + n * 13))
+                if (cardnumber[i + 1] == cardnumber[i] + 1 && cardnumber[i + 2] == cardnumber[i] + 2 && cardnumber[i + 3] == cardnumber[i] + 3 && cardnumber[i + 4] == cardnumber[i] + 4)
                 {
-                    score += 800000000;
-                    score += 14 * 1000000;
-                    break;
+                    for (int k = 0; k < 4; k++)
+                    {
+                        resultSmblStraightFlush[k] = 0;
+                    }
+                    resultSmblStraightFlush[getSymbl(cardnumber[i])]++;
+                    resultSmblStraightFlush[getSymbl(cardnumber[i + 4])]++;
+                    for (int j = 0; j < 4; j++)
+                    {
+                        // Debug.Log("i" + i + "j" + j+"symbl"+resultSmblStraightFlush[j]);
+                        if (resultSmblStraightFlush[j] == 2)
+                        {
+                            score += 800000000;
+                            score += getCardNumber(cardnumber[i + 4]) * 1000000;
+                            break;
+                        }
+                    }
+                    if (score > 100000000) break;
                 }
             }
         }
@@ -1329,27 +1378,43 @@ public class cardcontroller : MonoBehaviour
     #region
     public int myhandscore()
     {
-        if (myscoreStraightflush()  > 100000000) return myscoreStraightflush();
-        else if (myscoreFour()      > 100000000) return myscoreFour();
-        else if (myscoreFullhouse() > 100000000) return myscoreFullhouse();
-        else if (myscoreFlush()     > 100000000) return myscoreFlush();
-        else if (myscoreStraight()  > 100000000) return myscoreStraight();
-        else if (myscoreThree()     > 100000000) return myscoreThree();
-        else if (myscoreTwopair()   > 100000000) return myscoreTwopair();
-        else if (myscorePair()      > 100000000) return myscorePair();
-        else                                     return myscoreHighcard();
+        int myhandscorenumber = myscoreStraightflush();
+        if (myhandscorenumber > 100000000) { return myhandscorenumber; }
+        myhandscorenumber = myscoreFour();
+        if (myhandscorenumber > 100000000) { return myhandscorenumber; }
+        myhandscorenumber = myscoreFullhouse();
+        if (myhandscorenumber > 100000000) { return myhandscorenumber; }
+        myhandscorenumber = myscoreFlush();
+        if (myhandscorenumber > 100000000) { return myhandscorenumber; }
+        myhandscorenumber = myscoreStraight();
+        if (myhandscorenumber > 100000000) { return myhandscorenumber; }
+        myhandscorenumber = myscoreThree();
+        if (myhandscorenumber > 100000000) { return myhandscorenumber; }
+        myhandscorenumber = myscoreTwopair();
+        if (myhandscorenumber > 100000000) { return myhandscorenumber; }
+        myhandscorenumber = myscorePair();
+        if (myhandscorenumber > 100000000) { return myhandscorenumber; }
+        return myscoreHighcard();
     }
     public int ophandscore()
-    { 
-        if (opscoreStraightflush()  > 100000000) return opscoreStraightflush();
-        else if (opscoreFour()      > 100000000) return opscoreFour();
-        else if (opscoreFullhouse() > 100000000) return opscoreFullhouse();
-        else if (opscoreFlush()     > 100000000) return opscoreFlush();
-        else if (opscoreStraight()  > 100000000) return opscoreStraight();
-        else if (opscoreThree()     > 100000000) return opscoreThree();
-        else if (opscoreTwopair()   > 100000000) return opscoreTwopair();
-        else if (opscorePair()      > 100000000) return opscorePair();
-        else                                     return opscoreHighcard();
+    {
+        int ophandscorenumber = opscoreStraightflush();
+        if (ophandscorenumber > 100000000) { return ophandscorenumber; }
+        ophandscorenumber = opscoreFour();
+        if (ophandscorenumber > 100000000) { return ophandscorenumber; }
+        ophandscorenumber = opscoreFullhouse();
+        if (ophandscorenumber > 100000000) { return ophandscorenumber; }
+        ophandscorenumber = opscoreFlush();
+        if (ophandscorenumber > 100000000) { return ophandscorenumber; }
+        ophandscorenumber = opscoreStraight();
+        if (ophandscorenumber > 100000000) { return ophandscorenumber; }
+        ophandscorenumber = opscoreThree();
+        if (ophandscorenumber > 100000000) { return ophandscorenumber; }
+        ophandscorenumber = opscoreTwopair();
+        if (ophandscorenumber > 100000000) { return ophandscorenumber; }
+        ophandscorenumber = opscorePair();
+        if (ophandscorenumber > 100000000) { return ophandscorenumber; }
+        return opscoreHighcard();
     }
     #endregion
 
@@ -1360,7 +1425,7 @@ public class cardcontroller : MonoBehaviour
         double opwinhand = numberOpponentWinningHands;
         double draws = numberOfDraws;
         double mydraw;
-        double mywin;
+        double mywin=0;
         double mylose;
         Text text;
         if (countCardsinPlay() == 7) //(52-7)C2=990 
@@ -1434,11 +1499,14 @@ public class cardcontroller : MonoBehaviour
         }
         canvas.SetActive(false);
         mainresult.SetActive(true);
+        particleControl(mywin);
     }
-    public void setResultpreflop()
+    public void setResultpreflop(int hand1number, int hand2number, int handsymbol)
     {
+
         for(int i = 0; i < 9; i++)
         {
+            myhandcount[8 - i] = possibleHands[hand1number - 2, hand2number - 2, handsymbol, 8 - i];
             prefloptexts[2*i].text = myhandcount[8 - i].ToString();
             prefloptexts[2 * i + 1].text = (myhandcount[8 - i] / 21187.6).ToString("f3")+"%";
         }
@@ -1470,8 +1538,8 @@ public class cardcontroller : MonoBehaviour
                         card[8] = j;
                         resultSmbl[getSymbl(j)]++;
 
-                        opscore = ophandscore();            //get opponent hand score and compare with my hand score
-                        if (opscore > myscore) { numberOpponentWinningHands++;/* Debug.Log(i + " " + j + " " + opscore); */}
+                        opscore = ophandscore();//Debug.Log(i + " " + j + " " + opscore);            //get opponent hand score and compare with my hand score
+                        if (opscore > myscore) { numberOpponentWinningHands++;  }
                         else if (opscore == myscore) numberOfDraws++;
 
                         resetResultNumber(j);
@@ -1611,7 +1679,7 @@ public class cardcontroller : MonoBehaviour
                 calculateAfterRiver();
                 setMainResult();
             }
-            else if (countCardsinPlay() == 6)  //after turn
+            else if (card[0] != 0 && card[1] != 0 && card[2] != 0 && card[3] != 0 && card[4] != 0 && card[5] != 0 && countCardsinPlay() == 6)  //after turn
             {
                 for (int k = 1; k <= 52; k++)
                 {
@@ -1630,7 +1698,7 @@ public class cardcontroller : MonoBehaviour
                 }
                 setMainResult();
             }
-            else if (countCardsinPlay() == 5)  //after flop
+            else if (card[0] != 0 && card[1] != 0 && card[2] != 0 && card[3] != 0 && card[4] != 0 && countCardsinPlay() == 5)  //after flop
             {
                 for (int p = 1; p <= 52; p++)
                 {
@@ -1649,58 +1717,29 @@ public class cardcontroller : MonoBehaviour
                 }
                 setMainResult();
                 clickedGameObject = board4;
-            }      
-            else if (countCardsinPlay() == 4 || countCardsinPlay() == 3 || countCardsinPlay() == 1 )
+            }
+            else if (countCardsinPlay() == 4)
             {
                 canvas.SetActive(false);
                 errorcanvas2.SetActive(true);
+                clickedGameObject = board3;
             }
-            else if (countCardsinPlay()==2) 
+            else if (countCardsinPlay() == 3)
             {
-                for(int a = 1; a <= 52; a++)
-                {
-                    if (a != card[0] && a != card[1])
-                    {
-                        setSymblandNumber(a, 2);
-                        for (int b = a + 1; b <= 52; b++)
-                        {
-                            if (b != card[0] && b != card[1] && b != card[2])
-                            {
-                                setSymblandNumber(b, 3);
-                                for (int c = b + 1; c <= 52; c++)
-                                {
-                                    if (c != card[0] && c != card[1] && c != card[2] && c != card[3])
-                                    {
-                                        setSymblandNumber(c, 4);
-                                        for (int d = c + 1; d <= 52; d++)
-                                        {
-                                            if (d != card[0] && d != card[1] && d != card[2] && d != card[3] && d != card[4])
-                                            {
-                                                setSymblandNumber(d, 5);
-                                                for (int e = d + 1; e <= 52; e++)
-                                                {
-                                                    if (e != card[0] && e != card[1] && e != card[2] && e != card[3] && e!= card[4] && e != card[5])
-                                                    {
-                                                        setSymblandNumber(e, 6);
-
-                                                        countmyhands();
-
-                                                        resetSymblandNumber(e, 6);
-                                                    }
-                                                }
-                                                resetSymblandNumber(d, 5);
-                                            }
-                                        }
-                                        resetSymblandNumber(c, 4);
-                                    }
-                                }
-                                resetSymblandNumber(b, 3);
-                            }
-                        }
-                        resetSymblandNumber(a, 2);
-                    }
-                }
-                setResultpreflop();
+                canvas.SetActive(false);
+                errorcanvas2.SetActive(true);
+                clickedGameObject = board2;
+            }
+            else if (countCardsinPlay() == 1)
+            {
+                canvas.SetActive(false);
+                errorcanvas2.SetActive(true);
+                clickedGameObject = hand1;
+            }
+            else if (countCardsinPlay() == 2 && card[0] != 0 && card[1] != 0)
+            {
+                gethandNumberandSymbolForPreflop();
+                setResultpreflop(hand1number, hand2number, handsymbol);
                 clickedGameObject = board1;
             }
             Debug.Log("number of opponent winning hand " + numberOpponentWinningHands);
@@ -1708,4 +1747,3 @@ public class cardcontroller : MonoBehaviour
         }
     }
 }
-
