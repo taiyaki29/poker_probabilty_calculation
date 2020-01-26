@@ -166,9 +166,9 @@ public class cardcontroller : MonoBehaviour
 
     //things with setting card to card number and symbol and reseting results 
     #region
-    public void PutinMemory()
+    public void PutinMemory(int k1, int k2)
     {
-        for (int j = 0; j < 7; j++)
+        for (int j = k1; j < k2; j++)
         {
             cardno = j;
             if (cardno == 0) { clickedGameObject = hand1; }
@@ -279,6 +279,65 @@ public class cardcontroller : MonoBehaviour
             if (btext.text == "A")
             {
                // card[cardno] += 1;
+                resultNo[1]++; resultNo[14]++;
+            }
+            //Debug.Log(card[cardno]);
+        }
+    }
+    public void PutinMemoryMe(int k)
+    {
+        for (int j = 0; j < k; j++)
+        {
+            cardno = j;
+            if (cardno == 0) { clickedGameObject = hand1; }
+            if (cardno == 1) { clickedGameObject = hand2; }
+            if (cardno == 2) { clickedGameObject = board1; }
+            if (cardno == 3) { clickedGameObject = board2; }
+            if (cardno == 4) { clickedGameObject = board3; }
+            if (cardno == 5) { clickedGameObject = board4; }
+            if (cardno == 6) { clickedGameObject = board5; }
+
+            bimage = clickedGameObject.GetComponentInChildren<Image>();
+            for (int i = 1; i < 5; i++)
+            {
+                if (bimage.sprite == sprites[i])
+                {
+                    //card[cardno] += 13 * i;
+                    resultSmbl[i - 1]++;
+                }
+            }
+            btext = clickedGameObject.GetComponentInChildren<Text>();
+            for (int i = 2; i < 10; i++)
+            {
+                if (btext.text == i.ToString())
+                {
+                    //card[cardno] += i;
+                    resultNo[i]++;
+                }
+            }
+            if (btext.text == "10")
+            {
+                // card[cardno] += 10;
+                resultNo[10]++;
+            }
+            if (btext.text == "J")
+            {
+                // card[cardno] += 11;
+                resultNo[11]++;
+            }
+            if (btext.text == "Q")
+            {
+                // card[cardno] += 12;
+                resultNo[12]++;
+            }
+            if (btext.text == "K")
+            {
+                //  card[cardno] += 13;
+                resultNo[13]++;
+            }
+            if (btext.text == "A")
+            {
+                // card[cardno] += 1;
                 resultNo[1]++; resultNo[14]++;
             }
             //Debug.Log(card[cardno]);
@@ -1374,7 +1433,7 @@ public class cardcontroller : MonoBehaviour
     }
     #endregion
 
-    //my hand score and opponent hand score
+    //my hand score and opponent hand score possible opponent hands
     #region
     public int myhandscore()
     {
@@ -1396,26 +1455,167 @@ public class cardcontroller : MonoBehaviour
         if (myhandscorenumber > 100000000) { return myhandscorenumber; }
         return myscoreHighcard();
     }
-    public int ophandscore()
+    public int ophandscore(int myscore)
     {
-        int ophandscorenumber = opscoreStraightflush();
-        if (ophandscorenumber > 100000000) { return ophandscorenumber; }
-        ophandscorenumber = opscoreFour();
-        if (ophandscorenumber > 100000000) { return ophandscorenumber; }
-        ophandscorenumber = opscoreFullhouse();
-        if (ophandscorenumber > 100000000) { return ophandscorenumber; }
-        ophandscorenumber = opscoreFlush();
-        if (ophandscorenumber > 100000000) { return ophandscorenumber; }
-        ophandscorenumber = opscoreStraight();
-        if (ophandscorenumber > 100000000) { return ophandscorenumber; }
-        ophandscorenumber = opscoreThree();
-        if (ophandscorenumber > 100000000) { return ophandscorenumber; }
-        ophandscorenumber = opscoreTwopair();
-        if (ophandscorenumber > 100000000) { return ophandscorenumber; }
-        ophandscorenumber = opscorePair();
-        if (ophandscorenumber > 100000000) { return ophandscorenumber; }
-        return opscoreHighcard();
+        int myhandscoreno = myscore;
+        myhandscoreno /= 100000000;
+        if (myhandscoreno > 7)
+        {
+            int ophandscorenumber = opscoreStraightflush();
+            if (ophandscorenumber > 100000000) { return ophandscorenumber; }
+            else return 0;
+        }
+        else if (myhandscoreno > 6)
+        {
+            int ophandscorenumber = opscoreStraightflush();
+            if (ophandscorenumber > 100000000) { return ophandscorenumber; }
+            ophandscorenumber = opscoreFour();
+            if (ophandscorenumber > 100000000) { return ophandscorenumber; }
+            else return 0;
+        }
+        else if (myhandscoreno > 5)
+        {
+            int ophandscorenumber = opscoreStraightflush();
+            if (ophandscorenumber > 100000000) { return ophandscorenumber; }
+            ophandscorenumber = opscoreFour();
+            if (ophandscorenumber > 100000000) { return ophandscorenumber; }
+            ophandscorenumber = opscoreFullhouse();
+            if (ophandscorenumber > 100000000) { return ophandscorenumber; }
+            else return 0;
+        }
+        else if (myhandscoreno > 4)
+        {
+            int ophandscorenumber = opscoreStraightflush();
+            if (ophandscorenumber > 100000000) { return ophandscorenumber; }
+            ophandscorenumber = opscoreFour();
+            if (ophandscorenumber > 100000000) { return ophandscorenumber; }
+            ophandscorenumber = opscoreFullhouse();
+            if (ophandscorenumber > 100000000) { return ophandscorenumber; }
+            ophandscorenumber = opscoreFlush();
+            if (ophandscorenumber > 100000000) { return ophandscorenumber; }
+            else return 0;
+        }
+        else if (myhandscoreno > 3)
+        {
+            int ophandscorenumber = opscoreStraightflush();
+            if (ophandscorenumber > 100000000) { return ophandscorenumber; }
+            ophandscorenumber = opscoreFour();
+            if (ophandscorenumber > 100000000) { return ophandscorenumber; }
+            ophandscorenumber = opscoreFullhouse();
+            if (ophandscorenumber > 100000000) { return ophandscorenumber; }
+            ophandscorenumber = opscoreFlush();
+            if (ophandscorenumber > 100000000) { return ophandscorenumber; }
+            ophandscorenumber = opscoreStraight();
+            if (ophandscorenumber > 100000000) { return ophandscorenumber; }
+            else return 0;
+        }
+        else if (myhandscoreno > 2)
+        {
+            int ophandscorenumber = opscoreStraightflush();
+            if (ophandscorenumber > 100000000) { return ophandscorenumber; }
+            ophandscorenumber = opscoreFour();
+            if (ophandscorenumber > 100000000) { return ophandscorenumber; }
+            ophandscorenumber = opscoreFullhouse();
+            if (ophandscorenumber > 100000000) { return ophandscorenumber; }
+            ophandscorenumber = opscoreFlush();
+            if (ophandscorenumber > 100000000) { return ophandscorenumber; }
+            ophandscorenumber = opscoreStraight();
+            if (ophandscorenumber > 100000000) { return ophandscorenumber; }
+            ophandscorenumber = opscoreThree();
+            if (ophandscorenumber > 100000000) { return ophandscorenumber; }
+            else return 0;
+        }
+        else if (myhandscoreno > 1)
+        {
+            int ophandscorenumber = opscoreStraightflush();
+            if (ophandscorenumber > 100000000) { return ophandscorenumber; }
+            ophandscorenumber = opscoreFour();
+            if (ophandscorenumber > 100000000) { return ophandscorenumber; }
+            ophandscorenumber = opscoreFullhouse();
+            if (ophandscorenumber > 100000000) { return ophandscorenumber; }
+            ophandscorenumber = opscoreFlush();
+            if (ophandscorenumber > 100000000) { return ophandscorenumber; }
+            ophandscorenumber = opscoreStraight();
+            if (ophandscorenumber > 100000000) { return ophandscorenumber; }
+            ophandscorenumber = opscoreThree();
+            if (ophandscorenumber > 100000000) { return ophandscorenumber; }
+            ophandscorenumber = opscoreTwopair();
+            if (ophandscorenumber > 100000000) { return ophandscorenumber; }
+            else return 0;
+        }
+        else if (myhandscoreno > 0)
+        {
+            int ophandscorenumber = opscoreStraightflush();
+            if (ophandscorenumber > 100000000) { return ophandscorenumber; }
+            ophandscorenumber = opscoreFour();
+            if (ophandscorenumber > 100000000) { return ophandscorenumber; }
+            ophandscorenumber = opscoreFullhouse();
+            if (ophandscorenumber > 100000000) { return ophandscorenumber; }
+            ophandscorenumber = opscoreFlush();
+            if (ophandscorenumber > 100000000) { return ophandscorenumber; }
+            ophandscorenumber = opscoreStraight();
+            if (ophandscorenumber > 100000000) { return ophandscorenumber; }
+            ophandscorenumber = opscoreThree();
+            if (ophandscorenumber > 100000000) { return ophandscorenumber; }
+            ophandscorenumber = opscoreTwopair();
+            if (ophandscorenumber > 100000000) { return ophandscorenumber; }
+            ophandscorenumber = opscorePair();
+            if (ophandscorenumber > 100000000) { return ophandscorenumber; }
+            else return 0;
+        }
+        else
+        {
+            int ophandscorenumber = opscoreStraightflush();
+            if (ophandscorenumber > 100000000) { return ophandscorenumber; }
+            ophandscorenumber = opscoreFour();
+            if (ophandscorenumber > 100000000) { return ophandscorenumber; }
+            ophandscorenumber = opscoreFullhouse();
+            if (ophandscorenumber > 100000000) { return ophandscorenumber; }
+            ophandscorenumber = opscoreFlush();
+            if (ophandscorenumber > 100000000) { return ophandscorenumber; }
+            ophandscorenumber = opscoreStraight();
+            if (ophandscorenumber > 100000000) { return ophandscorenumber; }
+            ophandscorenumber = opscoreThree();
+            if (ophandscorenumber > 100000000) { return ophandscorenumber; }
+            ophandscorenumber = opscoreTwopair();
+            if (ophandscorenumber > 100000000) { return ophandscorenumber; }
+            ophandscorenumber = opscorePair();
+            if (ophandscorenumber > 100000000) { return ophandscorenumber; }
+            return opscoreHighcard();
+        }
     }
+    public void possibleOpponenthands( int a)
+    {
+        for (int i = a + 1; i <= 52; i++)
+        {
+            if (i != card[0] && i != card[1] && i != card[2] && i != card[3] && i != card[4] && i != card[5] && i != card[6])
+            {
+                setResultNumber(i);
+                card[7] = i;
+                resultSmbl[getSymbl(i)]++;
+                for (int j = i + 1; j <= 52; j++)
+                {
+                    if (j != card[0] && j != card[1] && j != card[2] && j != card[3] && j != card[4] && j != card[5] && j != card[6])
+                    {
+                        setResultNumber(j);
+                        card[8] = j;
+                        resultSmbl[getSymbl(j)]++;
+
+                        opscore = ophandscore(myscore);            //get opponent hand score and compare with my hand score
+                        if (opscore > myscore) { numberOpponentWinningHands++; Debug.Log(i + " " + j + " " + opscore); }
+                        else if (opscore == myscore) numberOfDraws++;
+
+                        resetResultNumber(j);
+                        card[8] = 0;
+                        resultSmbl[getSymbl(j)]--;
+                    }
+                }
+                resetResultNumber(i);
+                card[7] = 0;
+                resultSmbl[getSymbl(i)]--;
+            }
+        }
+    } 
     #endregion
 
     //put in result screen
@@ -1519,89 +1719,52 @@ public class cardcontroller : MonoBehaviour
     #region
     public void calculateAfterRiver()
     {
-        myscore = myhandscore();
+        //PutinMemory();
+        myscore = myhandscore(); //Debug.Log("myscore" + myhandscore());
         resetForOpponentCalculation();
         PutinMemoryOpponent();
         // all possible hands for opponent
-        for (int i = 1; i <= 52; i++)
-        {
-            if (i != card[0] && i != card[1] && i != card[2] && i != card[3] && i != card[4] && i != card[5] && i != card[6])
-            {
-                setResultNumber(i);
-                card[7] = i;
-                resultSmbl[getSymbl(i)]++;
-                for (int j = i + 1; j <= 52; j++)
-                {
-                    if (j != card[0] && j != card[1] && j != card[2] && j != card[3] && j != card[4] && j != card[5] && j != card[6])
-                    {
-                        setResultNumber(j);
-                        card[8] = j;
-                        resultSmbl[getSymbl(j)]++;
-
-                        opscore = ophandscore();//Debug.Log(i + " " + j + " " + opscore);            //get opponent hand score and compare with my hand score
-                        if (opscore > myscore) { numberOpponentWinningHands++;  }
-                        else if (opscore == myscore) numberOfDraws++;
-
-                        resetResultNumber(j);
-                        card[8] = 0;
-                        resultSmbl[getSymbl(j)]--;
-                    }
-                }
-                resetResultNumber(i);
-                card[7] = 0;
-                resultSmbl[getSymbl(i)]--;
-            }
-        }
+        possibleOpponenthands(0);
 
     }
     public void calculateAfterTurn(int a)
     {
-        myscore = myhandscore();
         resetForOpponentCalculation();
-        PutinMemoryOpponent();
+        PutinMemoryMe(6);
+        resultSmbl[getSymbl(a)]++;
+        setResultNumber(a);
+        myscore = myhandscore();// Debug.Log("myscore" + myhandscore());
+        resetForOpponentCalculation();
+        PutinMemoryOpponent(); 
+        resultSmbl[getSymbl(a)]++;
+        setResultNumber(a);
         // all possible hands for opponent
-        for (int i = a+1; i <= 52; i++)
-        {
-            if (i != card[0] && i != card[1] && i != card[2] && i != card[3] && i != card[4] && i != card[5] && i != card[6])
-            {
-                setResultNumber(i);
-                card[7] = i;
-                resultSmbl[getSymbl(i)]++;
-                for (int j = i + 1; j <= 52; j++)
-                {
-                    if (j != card[0] && j != card[1] && j != card[2] && j != card[3] && j != card[4] && j != card[5] && j != card[6])
-                    {
-                        setResultNumber(j);
-                        card[8] = j;
-                        resultSmbl[getSymbl(j)]++;
-                                     
-                        opscore = ophandscore();            //get opponent hand score and compare with my hand score
-                        if (opscore > myscore) { numberOpponentWinningHands++;/* Debug.Log(i + " " + j + " " + opscore); */}
-                        else if (opscore == myscore) numberOfDraws++;
-
-                        resetResultNumber(j);
-                        card[8] = 0;
-                        resultSmbl[getSymbl(j)]--;
-                    }
-                }
-                resetResultNumber(i);
-                card[7] = 0;
-                resultSmbl[getSymbl(i)]--;
-            }
-        }
+        possibleOpponenthands(a);
 
     }
-    public void calculateAfterFlop(int b)
+    public void calculateAfterFlop(int a)
     {
-        for (int k = b+1; k <= 52; k++)
+        for (int k = a+1; k <= 52; k++)
         {
             if (k != card[0] && k != card[1] && k != card[2] && k != card[3] && k != card[4] && k != card[5])
             {
-                setResultNumber(k);
                 card[6] = k;
-                resultSmbl[getSymbl(k)]++;
 
-                calculateAfterTurn(k);
+                resetForOpponentCalculation();
+                PutinMemoryMe(5);
+                resultSmbl[getSymbl(k)]++;
+                resultSmbl[getSymbl(a)]++;
+                setResultNumber(k);
+                setResultNumber(a);
+                myscore = myhandscore(); //Debug.Log("myscore" + myhandscore());
+                resetForOpponentCalculation();
+                PutinMemoryOpponent();
+                resultSmbl[getSymbl(k)]++;
+                resultSmbl[getSymbl(a)]++;
+                setResultNumber(k);
+                setResultNumber(a);
+                // all possible hands for opponent
+                possibleOpponenthands(k);
 
                 resetResultNumber(k);
                 card[6] = 0;
@@ -1670,12 +1833,11 @@ public class cardcontroller : MonoBehaviour
     public void Calculate()
     {
         ClearMemory();
-        PutinMemory();
+        PutinMemory(0,7);
         if (!checkInputError())
         {
             if (countCardsinPlay() == 7)       //after river
             {
-                Debug.Log("myscore" + myhandscore());
                 calculateAfterRiver();
                 setMainResult();
             }
@@ -1685,15 +1847,8 @@ public class cardcontroller : MonoBehaviour
                 {
                     if (k != card[0] && k != card[1] && k != card[2] && k != card[3] && k != card[4] && k != card[5])
                     {
-                        setResultNumber(k);
                         card[6] = k;
-                        resultSmbl[getSymbl(k)]++;
-
-                        calculateAfterTurn(k);
-
-                        resetResultNumber(k);
-                        card[6] = 0;
-                        resultSmbl[getSymbl(k)]--;
+                        calculateAfterTurn(k);                   
                     }
                 }
                 setMainResult();
@@ -1703,16 +1858,9 @@ public class cardcontroller : MonoBehaviour
                 for (int p = 1; p <= 52; p++)
                 {
                     if (p != card[0] && p != card[1] && p != card[2] && p != card[3] && p != card[4])
-                    {
-                        setResultNumber(p);
+                    {                   
                         card[5] = p;
-                        resultSmbl[getSymbl(p)]++;
-
-                        calculateAfterFlop(p);
-
-                        resetResultNumber(p);
-                        card[5] = 0;
-                        resultSmbl[getSymbl(p)]--;
+                        calculateAfterFlop(p);   
                     }
                 }
                 setMainResult();
@@ -1747,3 +1895,4 @@ public class cardcontroller : MonoBehaviour
         }
     }
 }
+
