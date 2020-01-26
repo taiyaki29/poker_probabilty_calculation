@@ -1602,7 +1602,7 @@ public class cardcontroller : MonoBehaviour
                         resultSmbl[getSymbl(j)]++;
 
                         opscore = ophandscore(myscore);            //get opponent hand score and compare with my hand score
-                        if (opscore > myscore) { numberOpponentWinningHands++; Debug.Log(i + " " + j + " " + opscore); }
+                        if (opscore > myscore) { numberOpponentWinningHands++; /*Debug.Log(i + " " + j + " " + opscore);*/ }
                         else if (opscore == myscore) numberOfDraws++;
 
                         resetResultNumber(j);
@@ -1620,7 +1620,7 @@ public class cardcontroller : MonoBehaviour
 
     //put in result screen
     #region
-    public void setMainResult()
+    public void setMainResult(int abc)
     {
         double opwinhand = numberOpponentWinningHands;
         double draws = numberOfDraws;
@@ -1628,7 +1628,7 @@ public class cardcontroller : MonoBehaviour
         double mywin=0;
         double mylose;
         Text text;
-        if (countCardsinPlay() == 7) //(52-7)C2=990 
+        if (abc == 7) //(52-7)C2=990 
         {  
             //my winning chance
             mywin = (990 - opwinhand - draws) / 990;
@@ -1651,7 +1651,7 @@ public class cardcontroller : MonoBehaviour
             text = opwinningChance.GetComponent<Text>();
             text.text = mylose.ToString("f3") + "%";
         }
-        else if (countCardsinPlay() == 6) //(52-6)C3=15180
+        else if (abc == 6) //(52-6)C3=15180
         {
             //my winning chance
             mywin = (15180 - opwinhand - draws) / 15180;
@@ -1674,7 +1674,7 @@ public class cardcontroller : MonoBehaviour
             text = opwinningChance.GetComponent<Text>();
             text.text = mylose.ToString("f3") + "%";
         }
-        else if (countCardsinPlay() == 5) //(52-5)C4=178,365 
+        else if (abc == 5) //(52-5)C4=178,365 
         {
             //my winning chance
             mywin = (178365 - opwinhand - draws) / 178365;
@@ -1839,7 +1839,7 @@ public class cardcontroller : MonoBehaviour
             if (countCardsinPlay() == 7)       //after river
             {
                 calculateAfterRiver();
-                setMainResult();
+                setMainResult(7);
             }
             else if (card[0] != 0 && card[1] != 0 && card[2] != 0 && card[3] != 0 && card[4] != 0 && card[5] != 0 && countCardsinPlay() == 6)  //after turn
             {
@@ -1851,7 +1851,7 @@ public class cardcontroller : MonoBehaviour
                         calculateAfterTurn(k);                   
                     }
                 }
-                setMainResult();
+                setMainResult(6);
             }
             else if (card[0] != 0 && card[1] != 0 && card[2] != 0 && card[3] != 0 && card[4] != 0 && countCardsinPlay() == 5)  //after flop
             {
@@ -1863,7 +1863,7 @@ public class cardcontroller : MonoBehaviour
                         calculateAfterFlop(p);   
                     }
                 }
-                setMainResult();
+                setMainResult(5);
                 clickedGameObject = board4;
             }
             else if (countCardsinPlay() == 4)
@@ -1895,4 +1895,5 @@ public class cardcontroller : MonoBehaviour
         }
     }
 }
+
 
