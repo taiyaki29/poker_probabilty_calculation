@@ -1,0 +1,303 @@
+  //number of different hands version 1 not used
+    #region
+    public int Straightflush()
+    {
+        int sf = 0;
+        int s = 0;
+        for (int i = 1; i <= 10; i++)
+        {
+
+            if (resultNo[i] > 0 && resultNo[i + 1] > 0 && resultNo[i + 2] > 0 && resultNo[i + 3]>0 && resultNo[i + 4] > 0)
+            {
+                s++;
+            }
+        }
+        int f = 0;
+        for (int i = 0; i < 4; i++)
+        {
+
+            if (resultSmbl[i] >= 5)
+            {
+                f++;
+            }
+        }
+        if (s > 0 && f > 0) { sf = 1; }
+        return sf;
+    }  //8
+    public int Four()
+    {
+        int k4 = 0;
+        for (int i = 2; i <= 14; i++)
+        {
+            if (resultNo[i] == 4)
+            {
+                k4++;
+            }
+        }
+
+        //if (k > 1) { k = 0; }// two pair
+        return k4;
+    }           //7
+    public int Fullhouse()
+    {
+        int fh = 0;
+        int k2 = 0;
+        int k3 = 0;
+        for (int i = 2; i <= 14; i++)
+        {
+
+            if (resultNo[i] == 2)
+            {
+                k2++;
+            }
+            if (resultNo[i] == 3) 
+            {
+                k3++;
+            }
+        }
+        if (k2 > 0 && k3 == 1) { fh = 1; }
+        return fh;
+    }      //6
+    public int Flush()
+    {
+        int f = 0;
+        for (int i = 0; i < 4; i++)
+        {
+
+            if (resultSmbl[i] >= 5)
+            {
+                f++;
+            }
+        }
+        int s = 0;
+        for (int i = 0; i <= 8; i++)
+        {
+
+            if (resultNo[i] > 0 && resultNo[i + 1] > 0 && resultNo[i + 2] > 0 && resultNo[i + 3] > 0 && resultNo[i + 4] > 0)
+            {
+                s++;
+            }
+        }
+        if (s>0) { f = 0; }
+        return f;
+    }          //5
+    public int Straight()
+    {
+        int s = 0;
+        for (int i = 0; i <= 8; i++)
+        {
+
+            if (resultNo[i] > 0 && resultNo[i + 1]>0 && resultNo[i + 2] > 0 && resultNo[i + 3]>0 && resultNo[i + 4] > 0)
+            {
+                s++;
+            }
+        }
+        int f = 0;
+        for (int i = 0; i < 4; i++)
+        {
+
+            if (resultSmbl[i] >= 5)
+            {
+                f++;
+            }
+        }
+        if (f > 0) { s = 0; }
+        return s;
+    }       //4
+    public int Three()
+    {
+        int k2 = 0;
+        int k3 = 0;
+        int k4 = 0;
+        for (int i = 2; i <= 14; i++)
+        {
+            if (resultNo[i] == 2) //fullhouse
+            {
+                k2++;
+            }
+            if (resultNo[i] == 3)
+            {
+                k3++;
+            }
+            if (resultNo[i] == 4) //four
+            {
+                k4++;
+            }
+
+        }
+        if (k4 > 0 || k2>0) { k3 = 0; }
+        if (k3 > 1) { k3 = 1; }// two triple
+        return k3;
+    }          //3
+    public int Twopair()
+    {
+        int k22 = 0;
+        int k3 = 0;
+        for (int i = 2; i < 14; i++)
+        {
+            if (resultNo[i] == 2)
+            {
+                k22++;
+            }
+            if (resultNo[i] == 3) //three fullhouse
+            {
+                k3++;
+            }
+
+        }
+        if (k22 != 2 || k3 > 0) { k22 = 0; }
+        if (k22 == 2) { k22--; }
+        return k22;
+    }        //2
+    public int Pair()
+    {
+        int k2 = 0;
+        int k3 = 0;
+        int k4 = 0;
+        for (int i = 2; i <= 14; i++)
+        {
+            if (resultNo[i] == 2)
+            {
+                k2++;
+            }
+            if (resultNo[i] == 3) //three fullhouse
+            {
+                k3++;
+            }
+            if (resultNo[i] == 4) //four
+            {
+                k4++;
+            }
+            //if (resultNo[i] > 4) { Debug.Log("error"); }
+
+        }
+        if (k3 > 0 || k4 > 0 || k2 > 1) { k2 = 0; }//more than twopair
+
+        return k2;
+    }           //1
+    #endregion
+
+    //number of hands version 2 not used
+    #region
+    public int Straightflush2()
+    {
+        int sf = 0;
+        int s = 0;
+        for (int i = 1; i <= 10; i++)
+        {
+
+            if (resultNo[i] > 0 && resultNo[i + 1] > 0 && resultNo[i + 2] > 0 && resultNo[i + 3] > 0 && resultNo[i + 4] > 0)
+            {
+                s++;
+            }
+        }
+        int f = 0;
+        for (int i = 0; i < 4; i++)
+        {
+
+            if (resultSmbl[i] >= 5)
+            {
+                f++;
+            }
+        }
+        if (s > 0 && f > 0) { sf = 1; }
+        return sf;
+    }  //8
+    public int Four2()
+    {
+        int k4 = 0;
+        for (int i = 2; i <= 14; i++)
+        {
+            if (resultNo[i] == 4)
+            {
+                k4++;
+            }
+        }
+        return k4;
+    }           //7
+    public int Fullhouse2()
+    {
+        int fh = 0;
+        int k2 = 0;
+        int k3 = 0;
+        for (int i = 2; i <= 14; i++)
+        {
+
+            if (resultNo[i] == 2)
+            {
+                k2++;
+            }
+            if (resultNo[i] == 3)
+            {
+                k3++;
+            }
+        }
+        if (k2 > 0 && k3 == 1) { fh = 1; }
+        return fh;
+    }      //6
+    public int Flush2()
+    {
+        int f = 0;
+        for (int i = 0; i < 4; i++)
+        {
+
+            if (resultSmbl[i] >= 5)
+            {
+                f++;
+            }
+        }
+        return f;
+    }          //5
+    public int Straight2()
+    {
+        int s = 0;
+        for (int i = 0; i <= 8; i++)
+        {
+
+            if (resultNo[i] > 0 && resultNo[i + 1] > 0 && resultNo[i + 2] > 0 && resultNo[i + 3] > 0 && resultNo[i + 4] > 0)
+            {
+                s++;
+            }
+        }
+        return s;
+    }       //4
+    public int Three2()
+    {
+        int k3 = 0;
+        for (int i = 2; i <= 14; i++)
+        {
+
+            if (resultNo[i] == 3)
+            {
+                k3++;
+            }
+        }
+        if (k3 > 0) k3 = 1; //dont count threes twice ex. 1112223
+        return k3;
+    }          //3
+    public int Twopair2()
+    {
+        int k22 = 0;
+        for (int i = 2; i < 14; i++)
+        {
+            if (resultNo[i] == 2)
+            {
+                k22++;
+            }
+        }
+        return k22;
+    }        //2
+    public int Pair2()
+    {
+        int k2 = 0;
+       
+        for (int i = 2; i <= 14; i++)
+        {
+            if (resultNo[i] == 2)
+            {
+                k2++;
+            }
+        }
+        return k2;
+    }           //1
+    #endregion
