@@ -37,7 +37,9 @@ namespace maincontrol
         public GameObject bgmcontrolbutton;
         public GameObject bgmcontrolbuttonbackground;
         public GameObject loadingscreen;
+        public GameObject loadingscreenPic;
         public Sprite[] sprites;
+        public Sprite[] loadingpics;
         public Text[] prefloptexts;
         public Text loadingtext;
         public Text loadingtextTriviatext;
@@ -79,8 +81,19 @@ namespace maincontrol
         ParticleSystem.EmissionModule emGreen;
         AudioSource audioSource;               //bgm
         int onoff = 0;                         //bgm switch
-        string[] loadingtextTrivia= {"test1","test2","test3" };              //trivia about poker during loading
+        string[] loadingtextTrivia= 
+        {"Did you know \nIt is more than twice as likely to get a pair than a high card.",
+         "Did you know \nThere are only 169 types of hands you can have preflop.",
+         "Did you know \nThere are nicknames for hand cards,\nAA rockets\nKK cowboys\nQQ Ladies\nJJ fish hooks...",
+         "Did you know \nThere are nicknames for hand cards,\n88 snowman\n77 hockey sticks\n44 sail boats\n33 crabs...",
+         "Did you know \nThere are nicknames for hand cards,\n22 ducks\nAK big slick\nAQ big chick\nAJ blackjack...",
+         "Did you know \nThere are nicknames for hand cards,\nA9 McDermott\nA8 dead man's hand\nA2 little slick...",
+         "Did you know \nThere are nicknames for hand cards,\nK9 canine\nQ10 cutie\nQ7 computer hand..",
+         "Did you know \nThere are nicknames for hand cards,\nQ9 T.J. Cloutier\nJ7 jack daniels\nJ5 jackson five...",
+         "Did you know \nThere are nicknames for hand cards,\n10,2 doyle brunson\n8,4 big brother\n3,2 nut low...",
+        };              //trivia about poker during loading
         float seconds;
+        Image loadingimage;
         #endregion
 
         //memorized answer for preflop and trivia text
@@ -95,6 +108,7 @@ namespace maincontrol
             setAlltoBlanck();
             setInitialCanvas();
             audioSource = bgmcontrol.GetComponent<AudioSource>();
+            loadingimage = loadingscreenPic.GetComponent<Image>();
         }
         void Update()
         {
@@ -114,10 +128,15 @@ namespace maincontrol
             if (seconds == 1000) seconds = 0;
             if (loadingscreen.activeSelf)
             {
-                if ((int)seconds % 4 == 0) loadingtext.text = "Loading";
-                else if ((int)seconds % 4 == 1) loadingtext.text = "Loading.";
-                else if ((int)seconds % 4 == 2) loadingtext.text = "Loading..";
-                else if ((int)seconds % 4 == 3) loadingtext.text = "Loading...";
+                if ((int)seconds % 4 == 0) loadingtext.text = "So many possible hands...";
+                else if ((int)seconds % 4 == 1) loadingtext.text = "Ace = strong...";
+                else if ((int)seconds % 4 == 2) loadingtext.text = "nCr=n!/(r!*(n-r)!)";
+                else if ((int)seconds % 4 == 3) loadingtext.text = "my calculation may take up to 10 seconds...";
+                if ((int)seconds % 6 == 0 || (int)seconds % 6 == 1) loadingimage.sprite = loadingpics[0];
+                else if ((int)seconds % 6 == 2 || (int)seconds % 6 == 3) loadingimage.sprite = loadingpics[1];
+                else if ((int)seconds % 6 == 4 || (int)seconds % 6 == 5) loadingimage.sprite = loadingpics[2];
+
+                //loadingAnimation.Play();
             }
             /*if (Input.GetKey(KeyCode.Space))
             {
@@ -1505,7 +1524,7 @@ namespace maincontrol
             Debug.Log(avscore);
             higherThanPair /= 21187.6;
             higherThanPair /= 0.38765;
-                prefloptexts[18].text = "Chance of getting Two Pair or better " + higherThanPair.ToString("f2") + "%"; 
+                prefloptexts[18].text = "Chance of getting Two Pair or better\n " + higherThanPair.ToString("f2") + "% higher than average."; 
             canvas.SetActive(false);
             preflopresult.SetActive(true);
         }
@@ -1719,6 +1738,8 @@ namespace maincontrol
     }
 
 }
+
+
 
 
 
