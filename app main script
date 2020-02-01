@@ -188,6 +188,9 @@ namespace maincontrol
             errorcanvas.SetActive(false);
             errorcanvas2.SetActive(false);
             mainresult.SetActive(false);
+            preflopresult.SetActive(false);
+            notcalculatedmessage.SetActive(false);
+            loadingscreen.SetActive(false);
             int playerNumber = playerNumberScript.GetComponent<playernumber>().numberofPeople();
             Text playernumbertext = playerNumberScript.GetComponent<playernumber>().playernumbertext;
             playernumbertext.text = playerNumber.ToString();
@@ -1712,28 +1715,54 @@ namespace maincontrol
                     canvas.SetActive(false);
                     errorcanvas2.SetActive(true);
                     clickedGameObject = board3;
+                    var rectTransformp = clickedGameObject.GetComponent<RectTransform>();
+                    var rectTransformc = chosen.GetComponent<RectTransform>();
+                    rectTransformc.localPosition = rectTransformp.localPosition;
                 }
                 else if (countCardsinPlay() == 3)
                 {
                     canvas.SetActive(false);
                     errorcanvas2.SetActive(true);
                     clickedGameObject = board2;
+                    var rectTransformp = clickedGameObject.GetComponent<RectTransform>();
+                    var rectTransformc = chosen.GetComponent<RectTransform>();
+                    rectTransformc.localPosition = rectTransformp.localPosition;
                 }
                 else if (countCardsinPlay() == 1)
                 {
                     canvas.SetActive(false);
                     errorcanvas2.SetActive(true);
-                    clickedGameObject = hand1;
+                    clickedGameObject = hand2;
+                    var rectTransformp = clickedGameObject.GetComponent<RectTransform>();
+                    var rectTransformc = chosen.GetComponent<RectTransform>();
+                    rectTransformc.localPosition = rectTransformp.localPosition;
                 }
                 else if (countCardsinPlay() == 2 && card[0] != 0 && card[1] != 0)
                 {
                     gethandNumberandSymbolForPreflop();
                     setResultpreflop(hand1number, hand2number, handsymbol);
                     clickedGameObject = board1;
+                    var rectTransformp = clickedGameObject.GetComponent<RectTransform>();
+                    var rectTransformc = chosen.GetComponent<RectTransform>();
+                    rectTransformc.localPosition = rectTransformp.localPosition;
                 }
-                Debug.Log("number of opponent winning hand " + numberOpponentWinningHands);
+                else
+                {
+                    clickedGameObject = hand1;
+                    var rectTransformp = clickedGameObject.GetComponent<RectTransform>();
+                    var rectTransformc = chosen.GetComponent<RectTransform>();
+                    rectTransformc.localPosition = rectTransformp.localPosition;
+                }
+                //Debug.Log("number of opponent winning hand " + numberOpponentWinningHands);
 
             }
+            /*else
+            { 
+                clickedGameObject = hand1;
+                var rectTransformp = clickedGameObject.GetComponent<RectTransform>();
+                var rectTransformc = chosen.GetComponent<RectTransform>();
+                rectTransformc.localPosition = rectTransformp.localPosition;
+            }*/
         }
     }
 
